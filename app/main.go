@@ -1,4 +1,4 @@
-package app
+package main // ZMIANA 1: Zmiana z 'app' na 'main'
 
 import (
 	"errors"
@@ -19,7 +19,7 @@ func main() {
 
 	err := godotenv.Load()
 	if err != nil {
-		slog.Error("Cannot read .env file", err)
+		slog.Error("Cannot read .env file", "error", err)
 		os.Exit(1)
 	}
 
