@@ -1,12 +1,12 @@
-package app
+package main
 
 import (
 	"errors"
 	"log/slog"
 	"os"
 
-	"github.com/prawo-i-piesc/scan-daemon/app/internal/common"
-	"github.com/prawo-i-piesc/scan-daemon/app/internal/listener/config"
+	"github.com/prawo-i-piesc/daemon-antiginx/app/internal/common"
+	"github.com/prawo-i-piesc/daemon-antiginx/app/internal/listener/config"
 
 	"github.com/joho/godotenv"
 )
@@ -19,7 +19,7 @@ func main() {
 
 	err := godotenv.Load()
 	if err != nil {
-		slog.Error("Cannot read .env file", err)
+		slog.Error("Cannot read .env file", "error", err)
 		os.Exit(1)
 	}
 
