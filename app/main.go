@@ -1,12 +1,12 @@
-package main // ZMIANA 1: Zmiana z 'app' na 'main'
+package app
 
 import (
 	"errors"
 	"log/slog"
 	"os"
 
-	"github.com/prawo-i-piesc/scan-daemon/app/internal/common"
-	"github.com/prawo-i-piesc/scan-daemon/app/internal/listener/config"
+	"github.com/prawo-i-piesc/daemon-antiginx/app/internal/common"
+	"github.com/prawo-i-piesc/daemon-antiginx/app/internal/listener/config"
 
 	"github.com/joho/godotenv"
 )

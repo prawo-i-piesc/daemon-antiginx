@@ -1,4 +1,4 @@
-module github.com/prawo-i-piesc/scan-daemon
+module github.com/prawo-i-piesc/daemon-antiginx
 
 go 1.26.6
 
