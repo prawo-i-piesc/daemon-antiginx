@@ -5,7 +5,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/prawo-i-piesc/scan-daemon/app/internal/common/types"
+	"github.com/prawo-i-piesc/daemon-antiginx/app/internal/common/types"
 )
 
 const (

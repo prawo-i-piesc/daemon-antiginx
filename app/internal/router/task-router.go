@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"log/slog"
 
-	"github.com/prawo-i-piesc/scan-daemon/app/internal/common/types"
+	"github.com/prawo-i-piesc/daemon-antiginx/app/internal/common/types"
 	"github.com/rabbitmq/amqp091-go"
 )
 

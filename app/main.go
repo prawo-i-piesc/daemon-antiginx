@@ -9,11 +9,11 @@ import (
 	"strconv"
 	"syscall"
 
-	"github.com/prawo-i-piesc/scan-daemon/app/internal/common/types"
-	"github.com/prawo-i-piesc/scan-daemon/app/internal/listener"
-	"github.com/prawo-i-piesc/scan-daemon/app/internal/listener/config"
-	"github.com/prawo-i-piesc/scan-daemon/app/internal/router"
-	"github.com/prawo-i-piesc/scan-daemon/app/internal/worker"
+	"github.com/prawo-i-piesc/daemon-antiginx/app/internal/common/types"
+	"github.com/prawo-i-piesc/daemon-antiginx/app/internal/listener"
+	"github.com/prawo-i-piesc/daemon-antiginx/app/internal/listener/config"
+	"github.com/prawo-i-piesc/daemon-antiginx/app/internal/router"
+	"github.com/prawo-i-piesc/daemon-antiginx/app/internal/worker"
 
 	"github.com/joho/godotenv"
 )
