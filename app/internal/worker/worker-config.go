@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"os"
 	"strconv"
+	"sync"
 
 	"github.com/prawo-i-piesc/daemon-antiginx/app/internal/common/types"
 )
@@ -13,7 +14,7 @@ const (
 	defaultWorkerPoolSize = "10"
 )
 
-func ConfigureWorkers(listener ScanListener) error {
+func ConfigureWorkers(listener Listener) (*sync.WaitGroup, error) {
 	workerPool := os.Getenv(workerPoolEnvName)
 	if workerPool == "" {
 		slog.Warn("WORKER_POOL env is not set, fallback to default")
@@ -25,14 +26,20 @@ func ConfigureWorkers(listener ScanListener) error {
 		msg := "Error occurred during task channel size parsing"
 		slog.Error(msg,
 			slog.Any("error", workerPoolErr))
-		return &types.ScanError{
+		return nil, &types.ScanError{
 			Message: msg,
 			Code:    500,
 			Err:     workerPoolErr,
 		}
 	}
 
-	for i := range workerPoolValue - 1 {
-		go listener.Listen(i)
+	wg := &sync.WaitGroup{}
+	for i := 0; i < workerPoolValue; i++ {
+		wg.Add(1)
+		go func(workerId int) {
+			defer wg.Done()
+			listener.Listen(workerId)
+		}(i)
 	}
+	return wg, nil
 }

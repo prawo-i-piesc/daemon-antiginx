@@ -9,6 +9,7 @@ type TaskWrapper struct {
 type ScanTask struct {
 	Target     string              `json:"Target"`
 	Parameters []*CommandParameter `json:"Parameters"`
+	TaskId     string              `json:"TaskId"`
 }
 
 type CommandParameter struct {

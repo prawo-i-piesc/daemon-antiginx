@@ -1,6 +1,5 @@
 package dispatcher
 
-//TODO unit testy
 import (
 	"encoding/json"
 	"errors"
@@ -9,6 +8,10 @@ import (
 	"github.com/prawo-i-piesc/daemon-antiginx/app/internal/common/types"
 	"github.com/prawo-i-piesc/daemon-antiginx/app/internal/worker/dispatcher/event-handle"
 )
+
+type EventDispatcher interface {
+	Dispatch(eventStream <-chan event_handle.EngineEventWrapper, taskId string, workerId int, target string)
+}
 
 type EventHandler func(event json.RawMessage, taskId string, target string) error
 
