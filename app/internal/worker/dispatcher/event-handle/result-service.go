@@ -14,7 +14,7 @@ type ResultService interface {
 }
 
 type ResultServiceImpl struct {
-	Register     EventRegister
+	//Register     EventRegister
 	BackoffTime  int
 	MaxRetries   int
 	ErrorChannel chan types.ScanError

@@ -104,9 +104,9 @@ func ConfigureRabbit() (*RabbitConfig, error) {
 		slog.Int("prefetch_count", prefetchCount))
 
 	return &RabbitConfig{
-		ConnCh:       conn,
-		TaskCh:       taskChannel,
-		ErrMidConnCh: errMidConnChann,
-		QueueName:    queueName,
+		ConnCh:          conn,
+		ConsumerChannel: taskChannel,
+		ErrMidConnCh:    errMidConnChann,
+		QueueName:       queueName,
 	}, nil
 }

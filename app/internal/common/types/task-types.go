@@ -2,9 +2,15 @@ package types
 
 import "github.com/rabbitmq/amqp091-go"
 
+type QueueAcknowledger interface {
+	Ack() error
+	Reject(requeue bool) error
+}
+
 type TaskWrapper struct {
 	QueueTask amqp091.Delivery
 	ScanTask  ScanTask
+	Ack       QueueAcknowledger
 }
 type ScanTask struct {
 	Target     string              `json:"Target"`

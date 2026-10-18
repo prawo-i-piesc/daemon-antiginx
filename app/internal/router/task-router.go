@@ -15,7 +15,7 @@ type TaskRouter struct {
 func (r *TaskRouter) Route(task amqp091.Delivery) error {
 	var scanTask types.ScanTask
 
-	parsingErr := json.Unmarshal(task.Body, &task)
+	parsingErr := json.Unmarshal(task.Body, &scanTask)
 	if parsingErr != nil {
 		msg := "Scan task parsing error"
 		slog.Warn(msg,
@@ -30,6 +30,7 @@ func (r *TaskRouter) Route(task amqp091.Delivery) error {
 	wrapper := types.TaskWrapper{
 		QueueTask: task,
 		ScanTask:  scanTask,
+		Ack:       &RabbitAcknowledger{Delivery: task},
 	}
 
 	r.ScanTaskChannel <- wrapper

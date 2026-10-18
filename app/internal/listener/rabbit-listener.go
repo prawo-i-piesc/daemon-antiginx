@@ -11,10 +11,10 @@ import (
 
 func Listen(rabbitConfig *config.RabbitConfig, ctx context.Context, taskRouter router.TaskRouter) error {
 	conn := rabbitConfig.ConnCh
-	taskChannel := rabbitConfig.TaskCh
+	taskChannel := rabbitConfig.ConsumerChannel
 	errMidConnCh := rabbitConfig.ErrMidConnCh
-
 	taskCh, taskErr := taskChannel.Consume(rabbitConfig.QueueName, "", false, false, false, false, nil)
+
 	if taskErr != nil {
 		return taskErr
 	}
@@ -22,29 +22,42 @@ func Listen(rabbitConfig *config.RabbitConfig, ctx context.Context, taskRouter r
 
 	for {
 		select {
-
 		case <-ctx.Done():
 			slog.Info("Stopping listener, received stop signal")
-			_ = taskChannel.Close()
-			_ = conn.Close()
+			if taskChannel != nil {
+				_ = taskChannel.Close()
+			}
+			if conn != nil {
+				_ = conn.Close()
+			}
 			return nil
 
 		case closeMidConn := <-errMidConnCh:
 			msg := "Stopping listener, error during connection occurred"
-			slog.Error(msg,
-				slog.Any("Error", closeMidConn))
-			_ = taskChannel.Close()
-			_ = conn.Close()
+			slog.Error(msg, slog.Any("Error", closeMidConn))
+			if taskChannel != nil {
+				_ = taskChannel.Close()
+			}
+			if conn != nil {
+				_ = conn.Close()
+			}
 			return &types.ScanError{
 				Message: msg,
 				Code:    500,
 				Err:     closeMidConn,
 			}
 
-		case task := <-taskCh:
+		case task, ok := <-taskCh:
+			if !ok {
+				slog.Info("RabbitMQ task channel closed")
+				return nil
+			}
+
 			routerErr := taskRouter.Route(task)
-			return routerErr
+			if routerErr != nil {
+				slog.Warn("Message rejected", slog.String("MessageId", task.MessageId))
+				_ = task.Reject(false)
+			}
 		}
 	}
-
 }

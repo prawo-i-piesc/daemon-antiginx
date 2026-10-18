@@ -14,13 +14,13 @@ type ResultPublisher interface {
 }
 
 type RabbitMQClient struct {
-	conn        *amqp.Connection
+	Conn        *amqp.Connection
 	QueueName   string
 	BackoffTime int
 }
 
 func (r *RabbitMQClient) Publish(ctx context.Context, taskId string, target string, payload []byte) error {
-	channel, confirmation, err := r.prepareChannel(r.conn, taskId, target)
+	channel, confirmation, err := r.prepareChannel(r.Conn, taskId, target)
 	if err != nil {
 		return err
 	}
