@@ -9,18 +9,23 @@ import (
 
 	"github.com/prawo-i-piesc/daemon-antiginx/app/internal/common/types"
 	"github.com/prawo-i-piesc/daemon-antiginx/app/internal/worker/dispatcher"
+	"github.com/prawo-i-piesc/daemon-antiginx/app/internal/worker/dispatcher/event-handle"
 )
+
+type Orchestrator interface {
+	Orchestrate(taskWrapper types.TaskWrapper, workerId int) error
+}
 
 type ScanOrchestrator struct {
 	EngineCall      string
 	EngineArg       string
-	EventDispatcher dispatcher.EngineEventDispatcher
+	EventDispatcher dispatcher.EventDispatcher
 }
 
 func (o *ScanOrchestrator) Orchestrate(taskWrapper types.TaskWrapper, workerId int) error {
 
-	eventChan := make(chan dispatcher.EngineEventWrapper, 50)
-	go o.EventDispatcher.Dispatch(eventChan, taskWrapper.ScanTask.TaskId, workerId)
+	eventChan := make(chan event_handle.EngineEventWrapper, 50)
+	go o.EventDispatcher.Dispatch(eventChan, taskWrapper.ScanTask.TaskId, workerId, taskWrapper.ScanTask.Target)
 
 	slog.Info("Processing scan...",
 		slog.Int("WorkerId", workerId),
@@ -53,7 +58,7 @@ func (o *ScanOrchestrator) Orchestrate(taskWrapper types.TaskWrapper, workerId i
 	for scanner.Scan() {
 		line := scanner.Bytes()
 
-		var event dispatcher.EngineEventWrapper
+		var event event_handle.EngineEventWrapper
 		if err := json.Unmarshal(line, &event); err != nil {
 			slog.Warn("Faulty engine event, cannot parse (skipped)",
 				slog.Any("err", err))
