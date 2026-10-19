@@ -1,8 +1,11 @@
 package event_handle
 
 import (
+	"bytes"
+	"log/slog"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )
@@ -209,6 +212,60 @@ func TestEventsHandler_HandleMetrics(t *testing.T) {
 
 			if tt.assert != nil {
 				tt.assert(t, mockMetrics)
+			}
+		})
+	}
+}
+
+func TestEventsHandler_HandleLog(t *testing.T) {
+	var tests = []struct {
+		name           string
+		eventPayload   []byte
+		taskId         string
+		target         string
+		expectError    bool
+		expectedLogMsg string
+	}{
+		{
+			name: "Happy path, successfully parses and logs event",
+			// Używamy stringa "INFO" zamiast liczby, żeby slog.Level poprawnie to zdeserializował
+			eventPayload:   []byte(`{"Message":"Engine scanning started","TestId":"test-456","Level":"INFO"}`),
+			taskId:         "task-123",
+			target:         "example.com",
+			expectError:    false,
+			expectedLogMsg: "Engine scanning started",
+		},
+		{
+			name:           "Should return error on invalid JSON",
+			eventPayload:   []byte(`{"Message":"Broken log json"`),
+			taskId:         "task-123",
+			target:         "example.com",
+			expectError:    true,
+			expectedLogMsg: "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var logBuffer bytes.Buffer
+			logger := slog.New(slog.NewTextHandler(&logBuffer, nil))
+			oldLogger := slog.Default()
+			slog.SetDefault(logger)
+			defer slog.SetDefault(oldLogger)
+
+			handler := &EventsHandlerImpl{}
+			err := handler.HandleLog(tt.eventPayload, tt.taskId, tt.target)
+
+			if tt.expectError {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+
+				logOutput := logBuffer.String()
+				assert.Contains(t, logOutput, tt.expectedLogMsg)
+				assert.Contains(t, logOutput, "TaskId="+tt.taskId)
+				assert.Contains(t, logOutput, "Target="+tt.target)
+				assert.Contains(t, logOutput, "TestId=test-456")
 			}
 		})
 	}
