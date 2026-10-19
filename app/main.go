@@ -37,24 +37,46 @@ func main() {
 
 	err := godotenv.Load()
 	if err != nil {
-		slog.Error("Cannot read .env file",
-			slog.String("Error", err.Error()))
+		slog.Error("Cannot read .env file", slog.String("Error", err.Error()))
 		os.Exit(1)
 	}
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	metricsService, metricsErr := eventHandle.NewMetricsService()
-	if metricsErr != nil {
+	if err := Run(ctx); err != nil {
+		slog.Error("Daemon stopped unexpectedly", slog.Any("err", err))
 		os.Exit(1)
 	}
-	rabbitConfig := initializeRabbitConnection()
-	taskChannel, errorChannel := initializeScanChannels()
-	taskRouter := initializeTaskRouter(taskChannel)
-	workersWg := initializeWorkers(taskChannel, errorChannel, stop, ctx, metricsService, rabbitConfig)
+}
 
-	listenerErr := listener.Listen(rabbitConfig, ctx, taskRouter)
+func Run(ctx context.Context) error {
+	metricsService, metricsErr := eventHandle.NewMetricsService()
+	if metricsErr != nil {
+		return metricsErr
+	}
+
+	rabbitConfig, err := initializeRabbitConnection()
+	if err != nil {
+		return err
+	}
+
+	taskChannel, errorChannel, err := initializeScanChannels()
+	if err != nil {
+		return err
+	}
+
+	taskRouter := initializeTaskRouter(taskChannel)
+
+	workerCtx, cancelWorkers := context.WithCancel(ctx)
+	defer cancelWorkers()
+
+	workersWg, err := initializeWorkers(taskChannel, errorChannel, cancelWorkers, workerCtx, metricsService, rabbitConfig)
+	if err != nil {
+		return err
+	}
+
+	listenerErr := listener.Listen(rabbitConfig, workerCtx, taskRouter)
 	if listenerErr != nil {
 		slog.Error("Listener stopped with error", slog.Any("err", listenerErr))
 	}
@@ -71,18 +93,19 @@ func main() {
 
 	if rabbitConfig.ConnCh != nil {
 		_ = rabbitConfig.ConnCh.Close()
-		slog.Info("")
 	}
 
 	slog.Info("Application shutdown performed gracefully. GN bby girl ;)")
+	return nil
 }
 
-func initializeWorkers(taskChannel chan types.TaskWrapper, errorChannel chan types.ScanError, cancelFunc context.CancelFunc, ctx context.Context, metricsService *eventHandle.MetricsService, rabbitConfig *config.RabbitConfig) *sync.WaitGroup {
+func initializeWorkers(taskChannel chan types.TaskWrapper, errorChannel chan types.ScanError, cancelFunc context.CancelFunc, ctx context.Context, metricsService *eventHandle.MetricsService, rabbitConfig *config.RabbitConfig) (*sync.WaitGroup, error) {
 
 	engineCall := os.Getenv(engineCallEnvName)
 	if engineCall == "" {
-		slog.Error("ENGINE_ANTIGINX_CALL env is not set")
-		os.Exit(1)
+		err := errors.New("ENGINE_ANTIGINX_CALL env is not set")
+		slog.Error(err.Error())
+		return nil, err
 	}
 
 	eventDispatcher := initializeDispatcher(errorChannel, 20, ctx, metricsService, rabbitConfig)
@@ -97,7 +120,7 @@ func initializeWorkers(taskChannel chan types.TaskWrapper, errorChannel chan typ
 	}
 	workersWg, workersConfigErr := worker.ConfigureWorkers(scanListener)
 	if workersConfigErr != nil {
-		panic(workersConfigErr)
+		return nil, workersConfigErr
 	}
 
 	errorListener := exception.ErrorListener{
@@ -107,7 +130,7 @@ func initializeWorkers(taskChannel chan types.TaskWrapper, errorChannel chan typ
 	go errorListener.Listen()
 
 	slog.Info("Workers configured successfully")
-	return workersWg
+	return workersWg, nil
 }
 
 func initializeTaskRouter(taskChannel chan types.TaskWrapper) router.TaskRouter {
@@ -118,7 +141,7 @@ func initializeTaskRouter(taskChannel chan types.TaskWrapper) router.TaskRouter 
 	return taskRouter
 }
 
-func initializeScanChannels() (chan types.TaskWrapper, chan types.ScanError) {
+func initializeScanChannels() (chan types.TaskWrapper, chan types.ScanError, error) {
 	taskChannelSize := os.Getenv(taskChannelSizeEnvName)
 	if taskChannelSize == "" {
 		slog.Warn("TASK_CHANNEL_SIZE env is not set, fallback to default")
@@ -129,13 +152,12 @@ func initializeScanChannels() (chan types.TaskWrapper, chan types.ScanError) {
 	if taskChannelErr != nil {
 		slog.Error("Error occurred during task channel size parsing",
 			slog.Any("error", taskChannelErr))
-		os.Exit(1)
+		return nil, nil, taskChannelErr
 	}
-	return make(chan types.TaskWrapper, taskChannelSizeValue), make(chan types.ScanError, taskChannelSizeValue)
+	return make(chan types.TaskWrapper, taskChannelSizeValue), make(chan types.ScanError, taskChannelSizeValue), nil
 }
 
-func initializeRabbitConnection() *config.RabbitConfig {
-
+func initializeRabbitConnection() (*config.RabbitConfig, error) {
 	rabbitConfig, rabbitConfigErr := config.ConfigureRabbit()
 	if rabbitConfigErr != nil {
 		var scanErr *types.ScanError
@@ -149,10 +171,10 @@ func initializeRabbitConnection() *config.RabbitConfig {
 		} else {
 			slog.Error("Fatal error", slog.Any("error", rabbitConfigErr))
 		}
-		os.Exit(1)
+		return nil, rabbitConfigErr
 	}
 	slog.Info("RabbitMQ configured successfully")
-	return rabbitConfig
+	return rabbitConfig, nil
 }
 
 func initializeDispatcher(errorChannel chan types.ScanError, resultChannelSize int, ctx context.Context, metricsService *eventHandle.MetricsService, rabbitConfig *config.RabbitConfig) dispatcher.EngineEventDispatcher {

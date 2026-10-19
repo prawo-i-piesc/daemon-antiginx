@@ -1,0 +1,17 @@
+{
+  "Target": "test target",
+  "TestId": "test id",
+  "Result": {
+    "Name": "",
+    "Certainty": 0,
+    "ThreatLevel": 0,
+    "Metadata": "",
+    "Description": ""
+  },
+  "EndFlag": "true",
+  "ResultType": 1,
+  "ProcessInfo": {
+    "Message": "",
+    "Code": 0
+  }
+}
