@@ -1,4 +1,4 @@
-package testdata
+package main
 
 import (
 	_ "embed"
@@ -21,8 +21,10 @@ func main() {
 
 	switch behaviour {
 	case "SUCCESS":
+
 		fmt.Println(resultEvent)
 		fmt.Println(endEvent)
+
 		os.Exit(0)
 	case "FAILURE":
 		os.Exit(1)

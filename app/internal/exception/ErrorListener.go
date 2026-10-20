@@ -21,7 +21,7 @@ func (l *ErrorListener) Listen() {
 			slog.Error("Fatal error, application shutdown",
 				slog.String("message", err.Message),
 				slog.Int("code", err.Code),
-				slog.String("error", err.Error()),
+				slog.String("error", err.Err.Error()),
 				slog.String("taskId", err.TaskId),
 				slog.Int("workerId", err.WorkerId))
 			l.CancelFunc()
