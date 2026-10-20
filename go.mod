@@ -1,6 +1,6 @@
 module github.com/prawo-i-piesc/daemon-antiginx
 
-go 1.26.8
+go 1.26.9
 
 require (
 	github.com/joho/godotenv v1.5.1
