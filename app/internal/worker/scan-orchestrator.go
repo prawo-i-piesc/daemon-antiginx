@@ -9,7 +9,7 @@ import (
 
 	"github.com/prawo-i-piesc/daemon-antiginx/app/internal/common/types"
 	"github.com/prawo-i-piesc/daemon-antiginx/app/internal/worker/dispatcher"
-	"github.com/prawo-i-piesc/daemon-antiginx/app/internal/worker/dispatcher/event-handle"
+	event_handle "github.com/prawo-i-piesc/daemon-antiginx/app/internal/worker/dispatcher/event-handle"
 )
 
 type Orchestrator interface {

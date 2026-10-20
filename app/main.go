@@ -5,12 +5,9 @@ import (
 	"errors"
 	"log/slog"
 	"os"
-	"os/signal"
 	"strconv"
 	"sync"
-	"syscall"
 
-	"github.com/joho/godotenv"
 	"github.com/prawo-i-piesc/daemon-antiginx/app/internal/common/types"
 	"github.com/prawo-i-piesc/daemon-antiginx/app/internal/exception"
 	"github.com/prawo-i-piesc/daemon-antiginx/app/internal/listener"
@@ -28,27 +25,6 @@ const (
 	engineArg              = "rawjson"
 	resultsQueue           = "RABBITMQ_RESULTS_QUEUE"
 )
-
-func main() {
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-		Level: slog.LevelInfo,
-	}))
-	slog.SetDefault(logger)
-
-	err := godotenv.Load()
-	if err != nil {
-		slog.Error("Cannot read .env file", slog.String("Error", err.Error()))
-		os.Exit(1)
-	}
-
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
-
-	if err := Run(ctx); err != nil {
-		slog.Error("Daemon stopped unexpectedly", slog.Any("err", err))
-		os.Exit(1)
-	}
-}
 
 func Run(ctx context.Context) error {
 	metricsService, metricsErr := eventHandle.NewMetricsService()

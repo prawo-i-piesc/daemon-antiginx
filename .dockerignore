@@ -1,0 +1,93 @@
+# ------------------------------------------
+# Go build artifacts
+# ------------------------------------------
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+*.prof
+bin/
+dist/
+build/
+
+# ------------------------------------------
+# Go workspaces and local tools
+# ------------------------------------------
+go.work
+go.work.sum
+
+# ------------------------------------------
+# Local development and editor files
+# ------------------------------------------
+.git/
+.gitignore
+.gitattributes
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.log
+
+# ------------------------------------------
+# Environment variables
+# ------------------------------------------
+.env
+.env*.local
+.env.development
+.env.test
+.env.production.local
+
+# ------------------------------------------
+# Docker configuration files
+# ------------------------------------------
+.dockerignore
+compose.yaml
+compose.yml
+docker-compose*.yaml
+docker-compose*.yml
+
+# ------------------------------------------
+# Documentation
+# ------------------------------------------
+*.md
+docs/
+
+# ------------------------------------------
+# CI/CD configuration files
+# ------------------------------------------
+.github/
+.gitlab-ci.yml
+.travis.yml
+.circleci/
+Jenkinsfile
+
+# ------------------------------------------
+# Cache directories and temporary data
+# ------------------------------------------
+.cache/
+.tmp/
+.temp/
+
+# ------------------------------------------
+# Sensitive or unnecessary configuration files
+# ------------------------------------------
+*.pem
+.editorconfig
+*.iml
+*.ipr
+*.iws
+
+# ------------------------------------------
+# OS-specific junk
+# ------------------------------------------
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
