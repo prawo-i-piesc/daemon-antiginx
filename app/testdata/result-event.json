@@ -1,17 +1,1 @@
-{
-  "Target": "test target",
-  "TestId": "test id",
-  "Result": {
-    "Name": "test name",
-    "Certainty": 1,
-    "ThreatLevel": 1,
-    "Metadata": "Test meta",
-    "Description": "Test desc"
-  },
-  "EndFlag": "false",
-  "ResultType": 1,
-  "ProcessInfo": {
-    "Message": "",
-    "Code": 0
-  }
-}
+{"EventType": 0, "Event": {"target": "test target", "testId": "test-happy-123", "result": {"Name": "test name", "Certainty": 1, "ThreatLevel": 1, "Metadata": "Test meta", "Description": "Test desc"}, "endFlag": false, "resultType": 1, "message": {"Message": "", "Code": 0}}}
