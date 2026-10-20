@@ -1,0 +1,90 @@
+site_name: Daemon-Antiginx Documentation
+repo_name: prawo-i-piesc/daemon-antiginx
+repo_url: https://github.com/prawo-i-piesc/daemon-antiginx
+site_url: https://prawo-i-piesc.github.io/daemon-antiginx/
+strict: true
+
+theme:
+  name: material
+
+  icon:
+    repo: fontawesome/brands/git-alt
+
+  font:
+    text: Roboto
+    code: JetBrains Mono
+
+  palette:
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/weather-night
+        name: Dark Mode
+      primary: black
+      accent: indigo
+
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/weather-sunny
+        name: Light Mode
+      primary: blue
+      accent: indigo
+
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.path
+    - navigation.top
+    - navigation.instant
+    - navigation.tracking
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tooltips
+
+plugins:
+  - search
+  - git-revision-date-localized:
+      enable_creation_date: false
+      enable_git_follow: false
+      enable_parallel_processing: false
+      strict: false
+      type: timeago
+  - include-markdown
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - abbr
+  - attr_list
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - toc:
+      permalink: true
+      toc_depth: 2-4
+
+nav:
+  - Daemon Antiginx: README.md
+  - Quick Start:
+      - Overview: QuickStart/QuickStart.md
+      - Go: QuickStart/Go.md
+      - Docker: QuickStart/Docker.md
+  - Daemon Documentation:
+      - Architecture and configuration: Daemon/README.md
+      - Messages and queues: Daemon/Messages.md
+      - Metrics and troubleshooting: Daemon/Operations.md
+
+copyright: "Copyright &copy; 2025 Antiginx Team. All rights reserved."
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/prawo-i-piesc/daemon-antiginx
