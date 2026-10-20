@@ -100,9 +100,27 @@ func TestErrorListener_Listen_MultipleErrors(t *testing.T) {
 		CancelFunc:   cancelFunc,
 	}
 
-	errChan <- types.ScanError{Code: 400, Message: "Warn 1"}
-	errChan <- types.ScanError{Code: 400, Message: "Warn 2"}
-	errChan <- types.ScanError{Code: 500, Message: "Fatal"}
+	errChan <- types.ScanError{
+		Message:  "Warn 1",
+		Code:     400,
+		Err:      errors.New("test error"),
+		TaskId:   "1",
+		WorkerId: 0,
+	}
+	errChan <- types.ScanError{
+		Message:  "Warn 2",
+		Code:     400,
+		Err:      errors.New("test error"),
+		TaskId:   "2",
+		WorkerId: 0,
+	}
+	errChan <- types.ScanError{
+		Message:  "Fatal",
+		Code:     500,
+		Err:      errors.New("test error"),
+		TaskId:   "3",
+		WorkerId: 0,
+	}
 	close(errChan)
 
 	listener.Listen()
