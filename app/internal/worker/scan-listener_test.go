@@ -30,7 +30,7 @@ func (m *MockAcknowledger) Reject(requeue bool) error {
 	return m.Called(requeue).Error(0)
 }
 
-var genericError = errors.New("some standard error")
+var errGeneric = errors.New("some standard error")
 var domainError = &types.ScanError{
 	Message:  "Domain specific failure",
 	Code:     400,
@@ -75,12 +75,12 @@ var listenerTests = []struct {
 		task: types.TaskWrapper{
 			ScanTask: types.ScanTask{TaskId: "task-123"},
 		},
-		orchestrateErr:   genericError,
+		orchestrateErr:   errGeneric,
 		expectedErrCount: 1,
 		expectedError: &types.ScanError{
 			Message:  "Unknown error",
 			Code:     500,
-			Err:      genericError,
+			Err:      errGeneric,
 			TaskId:   "task-123",
 			WorkerId: 7,
 		},
@@ -149,7 +149,7 @@ func TestScanListener_Listen_MultipleTasks(t *testing.T) {
 
 	mockOrchestrator.On("Orchestrate", task1, workerId).Return(nil).Once()
 	mockOrchestrator.On("Orchestrate", task2, workerId).Return(task2DomainError).Once()
-	mockOrchestrator.On("Orchestrate", task3, workerId).Return(genericError).Once()
+	mockOrchestrator.On("Orchestrate", task3, workerId).Return(errGeneric).Once()
 
 	mockAck.On("Ack").Return(nil).Once()
 	mockAck.On("Reject", false).Return(nil).Once()

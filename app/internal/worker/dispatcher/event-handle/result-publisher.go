@@ -87,7 +87,7 @@ func (r *RabbitMQClient) prepareChannel(conn *amqp.Connection, taskId string, ta
 		slog.Error("Failed to enable Confirmation mode",
 			slog.String("TaskId", taskId),
 			slog.String("Target", target))
-		oneTimeChannel.Close()
+		_ = oneTimeChannel.Close()
 		return nil, nil, err
 	}
 

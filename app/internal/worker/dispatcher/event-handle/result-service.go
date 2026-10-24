@@ -74,5 +74,4 @@ func (r *ResultServiceImpl) publishResults(target string, taskId string, result 
 	slog.Error("Exhausted all retries for publishing results",
 		slog.String("TaskId", taskId),
 		slog.String("Target", target))
-	return
 }
