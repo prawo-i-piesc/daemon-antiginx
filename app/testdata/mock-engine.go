@@ -10,6 +10,9 @@ const (
 	behaviour = "TEST_BEHAVIOUR"
 )
 
+//go:embed invalid-event.json
+var invalidEvent string
+
 //go:embed result-event.json
 var resultEvent string
 
@@ -28,5 +31,11 @@ func main() {
 		os.Exit(0)
 	case "FAILURE":
 		os.Exit(1)
+
+	case "INVALID_EVENT":
+		fmt.Println(invalidEvent)
+		fmt.Println(endEvent)
+
+		os.Exit(0)
 	}
 }

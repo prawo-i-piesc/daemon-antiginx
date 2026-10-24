@@ -22,8 +22,10 @@ func (l *ScanListener) Listen(workerId int) {
 		var orchestrationErrorDomain *types.ScanError
 		if orchestrationErr != nil {
 			if errors.As(orchestrationErr, &orchestrationErrorDomain) {
+				_ = taskWrapper.Ack.Reject(true)
 				l.ErrorChannel <- *orchestrationErrorDomain
 			} else {
+				_ = taskWrapper.Ack.Reject(false)
 				l.ErrorChannel <- types.ScanError{
 					Message:  "Unknown error",
 					Code:     500,
@@ -32,6 +34,8 @@ func (l *ScanListener) Listen(workerId int) {
 					WorkerId: workerId,
 				}
 			}
+		} else {
+			_ = taskWrapper.Ack.Ack()
 		}
 	}
 }
