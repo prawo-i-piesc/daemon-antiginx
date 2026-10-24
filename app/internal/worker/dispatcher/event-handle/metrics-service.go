@@ -135,9 +135,11 @@ func NewMetricsService() (*MetricsService, error) {
 		}
 	}
 
-	http.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
+	mux := http.NewServeMux()
+	mux.Handle("/metrics", promhttp.HandlerFor(reg, promhttp.HandlerOpts{}))
+
 	go func() {
-		if err := http.ListenAndServe(prometheusPort, nil); err != nil {
+		if err := http.ListenAndServe(prometheusPort, mux); err != nil {
 			slog.Error("Prometheus server failed", slog.Any("Error", err))
 		}
 	}()

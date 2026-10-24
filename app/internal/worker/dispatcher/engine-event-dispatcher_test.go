@@ -21,7 +21,7 @@ type MockEventsHandler struct {
 	mock.Mock
 }
 
-var handlerError = errors.New("handler failed")
+var errHandle = errors.New("handler failed")
 var internalHandlerError = &types.ScanError{
 	Message:  "internal handler error",
 	Code:     422,
@@ -61,11 +61,11 @@ var tests = []struct {
 		name:          "converts regular handler error",
 		eventType:     event_handle.Error,
 		handlerMethod: "HandleError",
-		handlerError:  handlerError,
+		handlerError:  errHandle,
 		wantError: &types.ScanError{
 			Message:  "Unknown handler error",
 			Code:     500,
-			Err:      handlerError,
+			Err:      errHandle,
 			TaskId:   testTaskID,
 			WorkerId: testWorkerID,
 		},

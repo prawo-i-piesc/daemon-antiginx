@@ -1,0 +1,13 @@
+{
+  "TaskId":"test-happy-123",
+  "Target":"example.com",
+  "Parameters":[
+    {
+      "Name":"test_param",
+      "Arguments":[
+        "-v",
+        "-p",
+        "80"
+      ]
+    }
+  ]

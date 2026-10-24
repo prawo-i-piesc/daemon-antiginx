@@ -18,7 +18,19 @@ func (m *MockOrchestrator) Orchestrate(taskWrapper types.TaskWrapper, workerId i
 	return args.Error(0)
 }
 
-var genericError = errors.New("some standard error")
+type MockAcknowledger struct {
+	mock.Mock
+}
+
+func (m *MockAcknowledger) Ack() error {
+	return m.Called().Error(0)
+}
+
+func (m *MockAcknowledger) Reject(requeue bool) error {
+	return m.Called(requeue).Error(0)
+}
+
+var errGeneric = errors.New("some standard error")
 var domainError = &types.ScanError{
 	Message:  "Domain specific failure",
 	Code:     400,
@@ -33,6 +45,7 @@ var listenerTests = []struct {
 	orchestrateErr   error
 	expectedErrCount int
 	expectedError    *types.ScanError
+	setupAckMock     func(m *MockAcknowledger)
 }{
 	{
 		name: "Happy path, no error sent to channel",
@@ -41,6 +54,9 @@ var listenerTests = []struct {
 		},
 		orchestrateErr:   nil,
 		expectedErrCount: 0,
+		setupAckMock: func(m *MockAcknowledger) {
+			m.On("Ack").Return(nil).Once()
+		},
 	},
 	{
 		name: "Should pass through domain ScanError",
@@ -50,20 +66,26 @@ var listenerTests = []struct {
 		orchestrateErr:   domainError,
 		expectedErrCount: 1,
 		expectedError:    domainError,
+		setupAckMock: func(m *MockAcknowledger) {
+			m.On("Reject", true).Return(nil).Once()
+		},
 	},
 	{
 		name: "Should wrap unknown generic error",
 		task: types.TaskWrapper{
 			ScanTask: types.ScanTask{TaskId: "task-123"},
 		},
-		orchestrateErr:   genericError,
+		orchestrateErr:   errGeneric,
 		expectedErrCount: 1,
 		expectedError: &types.ScanError{
 			Message:  "Unknown error",
 			Code:     500,
-			Err:      genericError,
+			Err:      errGeneric,
 			TaskId:   "task-123",
 			WorkerId: 7,
+		},
+		setupAckMock: func(m *MockAcknowledger) {
+			m.On("Reject", false).Return(nil).Once()
 		},
 	},
 }
@@ -74,7 +96,13 @@ func TestScanListener_Listen(t *testing.T) {
 	for _, tt := range listenerTests {
 		t.Run(tt.name, func(t *testing.T) {
 			mockOrchestrator := new(MockOrchestrator)
-			mockOrchestrator.On("Orchestrate", tt.task, workerId).Return(tt.orchestrateErr).Once()
+			mockOrchestrator.On("Orchestrate", mock.Anything, workerId).Return(tt.orchestrateErr).Once()
+
+			mockAck := new(MockAcknowledger)
+			if tt.setupAckMock != nil {
+				tt.setupAckMock(mockAck)
+			}
+			tt.task.Ack = mockAck
 
 			taskChan := make(chan types.TaskWrapper, 1)
 			errChan := make(chan types.ScanError, 1)
@@ -97,6 +125,7 @@ func TestScanListener_Listen(t *testing.T) {
 			}
 
 			mockOrchestrator.AssertExpectations(t)
+			mockAck.AssertExpectations(t)
 		})
 	}
 }
@@ -104,12 +133,12 @@ func TestScanListener_Listen(t *testing.T) {
 func TestScanListener_Listen_MultipleTasks(t *testing.T) {
 	workerId := 7
 	mockOrchestrator := new(MockOrchestrator)
+	mockAck := new(MockAcknowledger)
 
-	task1 := types.TaskWrapper{ScanTask: types.ScanTask{TaskId: "task-1"}}
-	task2 := types.TaskWrapper{ScanTask: types.ScanTask{TaskId: "task-2"}}
-	task3 := types.TaskWrapper{ScanTask: types.ScanTask{TaskId: "task-3"}}
+	task1 := types.TaskWrapper{ScanTask: types.ScanTask{TaskId: "task-1"}, Ack: mockAck}
+	task2 := types.TaskWrapper{ScanTask: types.ScanTask{TaskId: "task-2"}, Ack: mockAck}
+	task3 := types.TaskWrapper{ScanTask: types.ScanTask{TaskId: "task-3"}, Ack: mockAck}
 
-	// Tworzymy lokalny błąd domenowy z poprawnym TaskId pasującym do task2
 	task2DomainError := &types.ScanError{
 		Message:  "Domain specific failure",
 		Code:     400,
@@ -120,7 +149,11 @@ func TestScanListener_Listen_MultipleTasks(t *testing.T) {
 
 	mockOrchestrator.On("Orchestrate", task1, workerId).Return(nil).Once()
 	mockOrchestrator.On("Orchestrate", task2, workerId).Return(task2DomainError).Once()
-	mockOrchestrator.On("Orchestrate", task3, workerId).Return(genericError).Once()
+	mockOrchestrator.On("Orchestrate", task3, workerId).Return(errGeneric).Once()
+
+	mockAck.On("Ack").Return(nil).Once()
+	mockAck.On("Reject", false).Return(nil).Once()
+	mockAck.On("Reject", true).Return(nil).Once()
 
 	taskChan := make(chan types.TaskWrapper, 3)
 	errChan := make(chan types.ScanError, 3)
@@ -150,4 +183,5 @@ func TestScanListener_Listen_MultipleTasks(t *testing.T) {
 	require.Equal(t, "task-3", err2.TaskId)
 
 	mockOrchestrator.AssertExpectations(t)
+	mockAck.AssertExpectations(t)
 }
