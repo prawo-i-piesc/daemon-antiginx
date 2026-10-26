@@ -16,6 +16,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+type DummyMetrics struct{}
+
+func (m *DummyMetrics) AddCounter(n string, v float64, l ...string)       {}
+func (m *DummyMetrics) ObserveHistogram(n string, v float64, l ...string) {}
+func (m *DummyMetrics) SetGauge(n string, v float64, l ...string)         {}
+func (m *DummyMetrics) IncGauge(n string, l ...string)                    {}
+func (m *DummyMetrics) DecGauge(n string, l ...string)                    {}
+
 type MockEventDispatcher struct {
 	mock.Mock
 }
@@ -106,6 +114,7 @@ func TestScanOrchestrator_Orchestrate(t *testing.T) {
 				EngineCall:      engineCall,
 				EngineArg:       engineArg,
 				EventDispatcher: mockDispatcher,
+				MetricsService:  &DummyMetrics{},
 			}
 
 			task := types.TaskWrapper{

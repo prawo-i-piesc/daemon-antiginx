@@ -21,9 +21,10 @@ func (r *TaskRouter) Route(task amqp091.Delivery) error {
 		slog.Warn(msg,
 			slog.Any("error", parsingErr))
 		return &types.ScanError{
-			Message: msg,
-			Code:    500,
-			Err:     parsingErr,
+			Message:   msg,
+			Code:      500,
+			Err:       parsingErr,
+			Component: "task-router",
 		}
 	}
 

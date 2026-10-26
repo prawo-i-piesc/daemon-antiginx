@@ -23,11 +23,12 @@ type MockEventsHandler struct {
 
 var errHandle = errors.New("handler failed")
 var internalHandlerError = &types.ScanError{
-	Message:  "internal handler error",
-	Code:     422,
-	Err:      errors.New("invalid event"),
-	TaskId:   "internal-task",
-	WorkerId: 7,
+	Message:   "internal handler error",
+	Code:      422,
+	Err:       errors.New("invalid event"),
+	TaskId:    "internal-task",
+	WorkerId:  7,
+	Component: "event-dispatcher",
 }
 
 var tests = []struct {
@@ -63,11 +64,12 @@ var tests = []struct {
 		handlerMethod: "HandleError",
 		handlerError:  errHandle,
 		wantError: &types.ScanError{
-			Message:  "Unknown handler error",
-			Code:     500,
-			Err:      errHandle,
-			TaskId:   testTaskID,
-			WorkerId: testWorkerID,
+			Message:   "Unknown handler error",
+			Code:      500,
+			Err:       errHandle,
+			TaskId:    testTaskID,
+			WorkerId:  testWorkerID,
+			Component: "event-dispatcher",
 		},
 	},
 	{
@@ -82,10 +84,11 @@ var tests = []struct {
 		eventType:     999,
 		handlerMethod: "",
 		wantError: &types.ScanError{
-			Message:  "Unknown event type received",
-			Code:     500,
-			TaskId:   testTaskID,
-			WorkerId: testWorkerID,
+			Message:   "Unknown event type received",
+			Code:      500,
+			TaskId:    testTaskID,
+			WorkerId:  testWorkerID,
+			Component: "event-dispatcher",
 		},
 	},
 }

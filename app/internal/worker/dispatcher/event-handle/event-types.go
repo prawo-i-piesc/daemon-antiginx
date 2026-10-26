@@ -8,7 +8,7 @@ import (
 type EngineEventType int
 
 const (
-	Result = iota
+	Result EngineEventType = iota
 	Log
 	Metrics
 	Error
@@ -38,27 +38,29 @@ type LogEvent struct {
 	Message string     `json:"Message"`
 	TestId  string     `json:"TestId"`
 	Level   slog.Level `json:"Level"`
-	Error   error      `json:"Error"`
+	Error   string     `json:"Error"`
+	Event   string     `json:"Event"`
 }
 
 // TODO research o metrykach prometeusza
 type MetricsEvent struct {
 	Name   string
-	Type   metricType
+	Type   MetricType
 	Labels []string
 	Value  float64
 }
 
-type ResultType int
+type ResultType string
 
 const (
-	Message ResultType = iota
-	Success
+	Message ResultType = "Message"
+	Success ResultType = "Success"
 )
 
 type RequestInfo struct {
-	Message string `json:"Message"`
-	Code    int    `json:"Code"`
+	Message     string   `json:"Message"`
+	Code        int      `json:"Code"`
+	Protections []string `json:"Protections,omitempty"`
 }
 type TestResult struct {
 	Name        string      `json:"Name"`        // Test name for identification

@@ -27,9 +27,10 @@ func ConfigureWorkers(listener Listener) (*sync.WaitGroup, error) {
 		slog.Error(msg,
 			slog.Any("error", workerPoolErr))
 		return nil, &types.ScanError{
-			Message: msg,
-			Code:    500,
-			Err:     workerPoolErr,
+			Message:   msg,
+			Code:      500,
+			Err:       workerPoolErr,
+			Component: "worker-config",
 		}
 	}
 

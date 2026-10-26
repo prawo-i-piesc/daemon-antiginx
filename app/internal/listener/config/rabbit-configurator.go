@@ -23,8 +23,9 @@ func ConfigureRabbit() (*RabbitConfig, error) {
 	if rabbitmqURL == "" {
 		msg := "RABBITMQ_URL env is not set"
 		return nil, &types.ScanError{
-			Message: msg,
-			Code:    500,
+			Message:   msg,
+			Code:      500,
+			Component: "rabbit-configurator",
 		}
 	}
 	slog.Info("Successfully fetched env",
@@ -41,9 +42,10 @@ func ConfigureRabbit() (*RabbitConfig, error) {
 	if prefetchErr != nil {
 		msg := fmt.Sprintf("PREFETCH_COUNT has to be a number %s", prefetchCountStr)
 		return nil, &types.ScanError{
-			Message: msg,
-			Code:    500,
-			Err:     prefetchErr,
+			Message:   msg,
+			Code:      500,
+			Err:       prefetchErr,
+			Component: "rabbit-configurator",
 		}
 	}
 
@@ -51,8 +53,9 @@ func ConfigureRabbit() (*RabbitConfig, error) {
 	if queueName == "" {
 		msg := "RABBITMQ_QUEUE_NAME env is not set"
 		return nil, &types.ScanError{
-			Message: msg,
-			Code:    500,
+			Message:   msg,
+			Code:      500,
+			Component: "rabbit-configurator",
 		}
 	}
 
@@ -65,9 +68,10 @@ func ConfigureRabbit() (*RabbitConfig, error) {
 	if dialErr != nil {
 		msg := fmt.Sprintf("Cannot create TCP dial connection with %s, %v", rabbitmqURL, dialErr)
 		return nil, &types.ScanError{
-			Message: msg,
-			Code:    500,
-			Err:     dialErr,
+			Message:   msg,
+			Code:      500,
+			Err:       dialErr,
+			Component: "rabbit-configurator",
 		}
 	}
 	slog.Info("TCP dial connection created")
@@ -78,9 +82,10 @@ func ConfigureRabbit() (*RabbitConfig, error) {
 		_ = conn.Close()
 		msg := fmt.Sprintf("Error during opening the Channel with %s, %v", rabbitmqURL, connErr)
 		return nil, &types.ScanError{
-			Message: msg,
-			Code:    500,
-			Err:     connErr,
+			Message:   msg,
+			Code:      500,
+			Err:       connErr,
+			Component: "rabbit-configurator",
 		}
 	}
 	slog.Info("Channel created", slog.String("url", rabbitmqURL))
@@ -95,9 +100,10 @@ func ConfigureRabbit() (*RabbitConfig, error) {
 		_ = conn.Close()
 		msg := fmt.Sprintf("Error with setting PrefetchCount on RabbitMQ config, %v", qosErr)
 		return nil, &types.ScanError{
-			Message: msg,
-			Code:    500,
-			Err:     qosErr,
+			Message:   msg,
+			Code:      500,
+			Err:       qosErr,
+			Component: "rabbit-configurator",
 		}
 	}
 	slog.Info("PrefetchCount property set",

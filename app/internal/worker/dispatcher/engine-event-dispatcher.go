@@ -41,10 +41,11 @@ func (d *EngineEventDispatcher) Dispatch(eventStream <-chan event_handle.EngineE
 			slog.Warn("Cannot process event, event type not handled",
 				slog.Any("message", event.EventType))
 			d.errorChannel <- types.ScanError{
-				Message:  "Unknown event type received",
-				Code:     500,
-				TaskId:   taskId,
-				WorkerId: workerId,
+				Message:   "Unknown event type received",
+				Code:      500,
+				TaskId:    taskId,
+				WorkerId:  workerId,
+				Component: "event-dispatcher",
 			}
 			continue
 		}
@@ -57,11 +58,12 @@ func (d *EngineEventDispatcher) Dispatch(eventStream <-chan event_handle.EngineE
 			d.errorChannel <- *internalHandlerErr
 		} else if handlerErr != nil {
 			d.errorChannel <- types.ScanError{
-				Message:  "Unknown handler error",
-				Code:     500,
-				Err:      handlerErr,
-				TaskId:   taskId,
-				WorkerId: workerId,
+				Message:   "Unknown handler error",
+				Code:      500,
+				Err:       handlerErr,
+				TaskId:    taskId,
+				WorkerId:  workerId,
+				Component: "event-dispatcher",
 			}
 		}
 	}

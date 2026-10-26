@@ -20,12 +20,16 @@ type ScanOrchestrator struct {
 	EngineCall      string
 	EngineArg       string
 	EventDispatcher dispatcher.EventDispatcher
+	MetricsService  event_handle.MetricsFacade
 }
 
 func (o *ScanOrchestrator) Orchestrate(taskWrapper types.TaskWrapper, workerId int) error {
 
 	eventChan := make(chan event_handle.EngineEventWrapper, 50)
 	go o.EventDispatcher.Dispatch(eventChan, taskWrapper.ScanTask.TaskId, workerId, taskWrapper.ScanTask.Target)
+
+	o.MetricsService.IncGauge(event_handle.ActiveWorkers)
+	defer o.MetricsService.DecGauge(event_handle.ActiveWorkers)
 
 	slog.Info("Processing scan...",
 		slog.Int("WorkerId", workerId),
@@ -37,21 +41,24 @@ func (o *ScanOrchestrator) Orchestrate(taskWrapper types.TaskWrapper, workerId i
 	stdout, stdoutErr := cmd.StdoutPipe()
 	if stdoutErr != nil {
 		return &types.ScanError{
-			Message:  "Cannot open stdout channel",
-			Code:     500,
-			Err:      stdoutErr,
-			TaskId:   taskWrapper.ScanTask.TaskId,
-			WorkerId: workerId,
+			Message:   "Cannot open stdout channel",
+			Code:      500,
+			Err:       stdoutErr,
+			TaskId:    taskWrapper.ScanTask.TaskId,
+			WorkerId:  workerId,
+			Component: "scan-orchestrator",
 		}
 	}
 
 	if err := cmd.Start(); err != nil {
 		return &types.ScanError{
-			Message:  "Cannot start engine",
-			Code:     500,
-			Err:      err,
-			TaskId:   taskWrapper.ScanTask.TaskId,
-			WorkerId: workerId}
+			Message:   "Cannot start engine",
+			Code:      500,
+			Err:       err,
+			TaskId:    taskWrapper.ScanTask.TaskId,
+			WorkerId:  workerId,
+			Component: "scan-orchestrator",
+		}
 	}
 
 	scanner := bufio.NewScanner(stdout)
@@ -70,11 +77,12 @@ func (o *ScanOrchestrator) Orchestrate(taskWrapper types.TaskWrapper, workerId i
 
 	if err := cmd.Wait(); err != nil {
 		return &types.ScanError{
-			Message:  "Engine finished with error",
-			Code:     400,
-			Err:      err,
-			TaskId:   taskWrapper.ScanTask.TaskId,
-			WorkerId: workerId,
+			Message:   "Engine finished with error",
+			Code:      400,
+			Err:       err,
+			TaskId:    taskWrapper.ScanTask.TaskId,
+			WorkerId:  workerId,
+			Component: "scan-orchestrator",
 		}
 	}
 	return nil

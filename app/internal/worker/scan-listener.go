@@ -27,11 +27,12 @@ func (l *ScanListener) Listen(workerId int) {
 			} else {
 				_ = taskWrapper.Ack.Reject(false)
 				l.ErrorChannel <- types.ScanError{
-					Message:  "Unknown error",
-					Code:     500,
-					Err:      orchestrationErr,
-					TaskId:   taskWrapper.ScanTask.TaskId,
-					WorkerId: workerId,
+					Message:   "Unknown error",
+					Code:      500,
+					Err:       orchestrationErr,
+					TaskId:    taskWrapper.ScanTask.TaskId,
+					WorkerId:  workerId,
+					Component: "scan-listener",
 				}
 			}
 		} else {

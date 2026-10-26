@@ -87,11 +87,11 @@ func (h *EventsHandlerImpl) HandleMetrics(event json.RawMessage, taskId string, 
 
 	//TODO remember to send labels in order defined in metrics service
 	switch metricsEvent.Type {
-	case counter:
+	case Counter:
 		h.MetricsService.AddCounter(metricsEvent.Name, metricsEvent.Value, metricsEvent.Labels...)
-	case histogram:
+	case Histogram:
 		h.MetricsService.ObserveHistogram(metricsEvent.Name, metricsEvent.Value, metricsEvent.Labels...)
-	case gauge:
+	case Gauge:
 		h.MetricsService.SetGauge(metricsEvent.Name, metricsEvent.Value, metricsEvent.Labels...)
 	}
 	return nil

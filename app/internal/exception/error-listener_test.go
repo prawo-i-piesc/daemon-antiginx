@@ -13,6 +13,14 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+type DummyMetrics struct{}
+
+func (m *DummyMetrics) AddCounter(n string, v float64, l ...string)       {}
+func (m *DummyMetrics) ObserveHistogram(n string, v float64, l ...string) {}
+func (m *DummyMetrics) SetGauge(n string, v float64, l ...string)         {}
+func (m *DummyMetrics) IncGauge(n string, l ...string)                    {}
+func (m *DummyMetrics) DecGauge(n string, l ...string)                    {}
+
 var tests = []struct {
 	name           string
 	errCode        int
@@ -61,8 +69,9 @@ func TestErrorListener_Listen(t *testing.T) {
 			errChan := make(chan types.ScanError, 1)
 
 			listener := &ErrorListener{
-				ErrorChannel: errChan,
-				CancelFunc:   cancelFunc,
+				ErrorChannel:   errChan,
+				CancelFunc:     cancelFunc,
+				MetricsService: &DummyMetrics{},
 			}
 
 			errChan <- types.ScanError{
@@ -96,8 +105,9 @@ func TestErrorListener_Listen_MultipleErrors(t *testing.T) {
 	errChan := make(chan types.ScanError, 3)
 
 	listener := &ErrorListener{
-		ErrorChannel: errChan,
-		CancelFunc:   cancelFunc,
+		ErrorChannel:   errChan,
+		CancelFunc:     cancelFunc,
+		MetricsService: &DummyMetrics{},
 	}
 
 	errChan <- types.ScanError{
