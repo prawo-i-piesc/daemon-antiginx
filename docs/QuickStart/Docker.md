@@ -1,6 +1,6 @@
 # Run with Docker
 
-This guide uses Docker commands from the **daemon-antiginx repository root**. It starts RabbitMQ separately; there is no Compose file in this repository. Examples use development-only credentials; choose different secrets and secure the broker for any shared environment.
+This guide uses manual Docker commands from the **daemon-antiginx repository root**. If you already have a broker and both queues, use the [Docker Compose guide](DockerCompose.md) to build and run just the daemon. Examples use development-only credentials; choose different secrets and secure the broker for any shared environment.
 
 ## Start RabbitMQ
 
@@ -49,6 +49,7 @@ docker run --rm --name antiginx-daemon --network antiginx-net \
   -e RABBITMQ_QUEUE_NAME=tasks_queue \
   -e RABBITMQ_RESULTS_QUEUE=results_queue \
   -e ENGINE_ANTIGINX_CALL=/app/cli-app \
+  -e PIPE_COMMUNICATION=true \
   daemon-antiginx:local
 ```
 

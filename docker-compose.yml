@@ -1,0 +1,20 @@
+services:
+  daemon-antiginx:
+    build: .
+    image: daemon-antiginx:local
+    environment:
+      - PROMETHEUS_PORT
+      - RABBITMQ_URL
+      - RABBITMQ_QUEUE_NAME
+      - RABBITMQ_RESULTS_QUEUE
+      - ENGINE_ANTIGINX_CALL=/app/cli-app
+      - PIPE_COMMUNICATION=true
+      - PREFETCH_COUNT
+      - TASK_CHANNEL_SIZE
+      - WORKER_POOL
+      - ANTIGINX_NVD_API_KEY
+      - ANTIGINX_RDAP_URL
+      - ANTIGINX_URLHAUS_AUTH_KEY
+      - ANTIGINX_URLHAUS_URL
+    ports:
+      - "127.0.0.1:9091:9091"
