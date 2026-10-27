@@ -1,17 +1,17 @@
 # Quick Start
 
-Daemon-Antiginx is a **queue consumer**, not a standalone web scanner. It needs a RabbitMQ broker, predeclared task and result queues, and an Engine-Antiginx executable. Choose [Go](Go.md) to run from source or [Docker](Docker.md) to use the image containing both binaries.
+Daemon-Antiginx is a **queue consumer**, not a standalone web scanner. It needs a RabbitMQ broker, predeclared task and result queues, and an Engine-Antiginx executable. Choose [CLI](CLI.md) to run from source, [Docker](Docker.md) for manual containers, or [Docker Compose](DockerCompose.md) to build and run the daemon with an existing broker and queues.
 
 ## Requirements
 
-| Component | Local Go | Docker |
+| Component | Local CLI | Docker / Docker Compose |
 | --- | --- | --- |
 | Go | 1.26.9 or newer (see `go.mod`); build the engine separately | Not needed on the host |
-| Docker | Optional for RabbitMQ; required for the e2e test | Required for daemon and RabbitMQ |
-| RabbitMQ | Broker reachable by AMQP | Broker on the same Docker network |
+| Docker | Optional for RabbitMQ; required for the e2e test | Required for the daemon image |
+| RabbitMQ | Broker reachable by AMQP | Existing broker reachable from the daemon container |
 | Engine-Antiginx | Build `cli-app` for your OS and CPU | Copied from the engine image during image build |
 
-There is **no** `docker-compose.yml` in this repository. The commands in the Docker guide use `docker run` instead.
+The [Docker Compose guide](DockerCompose.md) builds and runs the daemon only; you must prepare RabbitMQ and both queues separately. The [Docker guide](Docker.md) shows how to start a local broker and declare its queues.
 
 ## Flow
 
@@ -32,6 +32,7 @@ There is **no** `docker-compose.yml` in this repository. The commands in the Doc
 
 ## Next steps
 
-- [Run locally with Go](Go.md) — build the engine and configure the broker.
+- [Run locally with the CLI](CLI.md) — build the engine and configure the broker.
 - [Run with Docker](Docker.md) — start an isolated broker and publish a demo request.
+- [Run with Docker Compose](DockerCompose.md) — build and run the daemon against an existing broker.
 - [Metrics and troubleshooting](../Daemon/Operations.md) — check `/metrics` and diagnose startup issues.

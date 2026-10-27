@@ -75,8 +75,9 @@ nav:
   - Daemon Antiginx: README.md
   - Quick Start:
       - Overview: QuickStart/QuickStart.md
-      - Go: QuickStart/Go.md
+      - CLI: QuickStart/CLI.md
       - Docker: QuickStart/Docker.md
+      - Docker Compose: QuickStart/DockerCompose.md
   - Daemon Documentation:
       - Architecture and configuration: Daemon/README.md
       - Messages and queues: Daemon/Messages.md

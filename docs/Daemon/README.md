@@ -38,11 +38,13 @@ Set environment variables in the process or a `.env` file in the daemon's workin
 | `PREFETCH_COUNT` | No | RabbitMQ per-consumer prefetch; default `12`. |
 | `TASK_CHANNEL_SIZE` | No | Buffer size for task and error channels; default `10`. |
 | `WORKER_POOL` | No | Number of concurrent workers; default `10`. |
+| `PIPE_COMMUNICATION` | Set for engine | The engine checks for its presence to use pipe mode; Compose sets it to `true`. |
+| `ANTIGINX_NVD_API_KEY`, `ANTIGINX_URLHAUS_AUTH_KEY` | No | Optional credentials passed to the engine subprocess. |
 
 Use positive values for the three numeric tuning options; the implementation parses integers but does not validate that all values are positive. If `PROMETHEUS_PORT` is missing, startup fails. A port binding error is currently logged by the metrics goroutine rather than stopping the consumer. RabbitMQ URL and engine errors may appear in logs; keep credentials out of shared logs.
 
 ## Deployment considerations
 
-The Docker image is built with `golang:1.27-alpine`, copies `cli-app` from `ghcr.io/prawo-i-piesc/engine-antiginx:latest` and starts `/app/daemon` as a non-root user. It does **not** start RabbitMQ. The `EXPOSE 5000` instruction is image metadata; the actual metrics listener binds to `PROMETHEUS_PORT` (for example `:9091`). Read the [Docker guide](../QuickStart/Docker.md) for a working network and port mapping.
+The Docker image is built with `golang:1.27-alpine`, copies `cli-app` from `ghcr.io/prawo-i-piesc/engine-antiginx:latest` and starts `/app/daemon` as a non-root user. It does **not** start RabbitMQ. The `EXPOSE 5000` instruction is image metadata; the actual metrics listener binds to `PROMETHEUS_PORT` (for example `:9091`). Read the [Docker guide](../QuickStart/Docker.md) for a manual network and port mapping, or the [Docker Compose guide](../QuickStart/DockerCompose.md) to build and run the daemon against an existing broker and queues.
 
 For task/result formats, acknowledgement behavior and publishing failures, see [Messages and queues](Messages.md). For metrics and diagnosis, see [Operations](Operations.md).

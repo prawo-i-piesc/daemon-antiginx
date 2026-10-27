@@ -40,6 +40,7 @@ daemon-antiginx/
 │   └── e2e/                        # Docker-based integration test
 ├── docs/                           # MkDocs guides and reference
 ├── Dockerfile                      # Multi-stage image including the engine
+├── docker-compose.yml              # Build and run the daemon with an external broker
 ├── mkdocs.yml                      # Documentation navigation
 └── .env.example                    # Environment template
 ```
@@ -49,17 +50,18 @@ daemon-antiginx/
 1. Install Go compatible with `go.mod` (1.26.9 or newer), Docker, and the Engine-Antiginx CLI binary (for local execution).
 2. Start RabbitMQ and **declare both** the tasks and results queues before starting the daemon.
 3. Configure `PROMETHEUS_PORT`, `RABBITMQ_URL`, `RABBITMQ_QUEUE_NAME`, `RABBITMQ_RESULTS_QUEUE` and `ENGINE_ANTIGINX_CALL`.
-4. Run `go run .` from this repository's root, or use the container image and Docker network instructions below.
+4. Run `go run .` from this repository's root, start manual containers, or use `docker compose up --build -d` to run only the daemon (Compose does not start RabbitMQ or create queues).
 
-For runnable setup commands and an example task, see the [Quick Start](https://prawo-i-piesc.github.io/daemon-antiginx/QuickStart/QuickStart/) guide. The [local Go](https://prawo-i-piesc.github.io/daemon-antiginx/QuickStart/Go/) and [Docker](https://prawo-i-piesc.github.io/daemon-antiginx/QuickStart/Docker/) guides cover each deployment mode.
+For runnable setup commands and an example task, see the [Quick Start](https://prawo-i-piesc.github.io/daemon-antiginx/QuickStart/QuickStart/) guide. The [local CLI](https://prawo-i-piesc.github.io/daemon-antiginx/QuickStart/CLI/), [Docker](https://prawo-i-piesc.github.io/daemon-antiginx/QuickStart/Docker/) and [Docker Compose](https://prawo-i-piesc.github.io/daemon-antiginx/QuickStart/DockerCompose/) guides cover each deployment mode.
 
 > **Delivery limitation:** The current consumer uses manual acknowledgements, but does not acknowledge successfully parsed tasks. They remain unacked in RabbitMQ and may be redelivered after the consumer disconnects. A published result must not be interpreted as an exactly-once completion guarantee. See [queue behavior](https://prawo-i-piesc.github.io/daemon-antiginx/Daemon/Messages/) before using this in production.
 
 ## 📚 Documentation
 
 - [Getting started and prerequisites](https://prawo-i-piesc.github.io/daemon-antiginx/QuickStart/QuickStart/)
-- [Run locally with Go](https://prawo-i-piesc.github.io/daemon-antiginx/QuickStart/Go/)
+- [Run locally with the CLI](https://prawo-i-piesc.github.io/daemon-antiginx/QuickStart/CLI/)
 - [Run with Docker](https://prawo-i-piesc.github.io/daemon-antiginx/QuickStart/Docker/)
+- [Run with Docker Compose](https://prawo-i-piesc.github.io/daemon-antiginx/QuickStart/DockerCompose/)
 - [Architecture and configuration](https://prawo-i-piesc.github.io/daemon-antiginx/Daemon/)
 - [Message contracts and queue behavior](https://prawo-i-piesc.github.io/daemon-antiginx/Daemon/Messages/)
 - [Metrics and troubleshooting](https://prawo-i-piesc.github.io/daemon-antiginx/Daemon/Operations/)

@@ -1,4 +1,4 @@
-# Run locally with Go
+# Run locally with the CLI
 
 These commands assume you are in the **daemon-antiginx repository root**. Install Go 1.26.9+ and a RabbitMQ broker before starting. For a local broker, follow the [Docker guide's RabbitMQ setup](Docker.md#start-rabbitmq) (the daemon itself can still run on your host).
 
@@ -23,9 +23,10 @@ RABBITMQ_URL=amqp://antiginx:localdev@localhost:5672/
 RABBITMQ_QUEUE_NAME=tasks_queue
 RABBITMQ_RESULTS_QUEUE=results_queue
 ENGINE_ANTIGINX_CALL=../engine-antiginx/cli-app
+PIPE_COMMUNICATION=true
 ```
 
-For example, save these lines to `.env` in the daemon repository root (or adapt `.env.example`). `antiginx:localdev` matches the broker in the [Docker guide](Docker.md#start-rabbitmq); use your actual broker credentials otherwise. Avoid committing `.env` or credentials. Declare **both** queues before starting (see [queue setup](Docker.md#declare-the-queues)).
+For example, save these lines to `.env` in the daemon repository root (or copy `.env.example` and add the local-only settings shown above). `antiginx:localdev` matches the broker in the [Docker guide](Docker.md#start-rabbitmq); use your actual broker credentials otherwise. Avoid committing `.env` or credentials. Declare **both** queues before starting (see [queue setup](Docker.md#declare-the-queues)).
 
 ```sh
 go run .
