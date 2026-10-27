@@ -92,6 +92,7 @@ func initializeWorkers(taskChannel chan types.TaskWrapper, errorChannel chan typ
 			EngineCall:      engineCall,
 			EngineArg:       engineArg,
 			EventDispatcher: &eventDispatcher,
+			MetricsService:  metricsService,
 		},
 	}
 	workersWg, workersConfigErr := worker.ConfigureWorkers(scanListener)
@@ -100,8 +101,9 @@ func initializeWorkers(taskChannel chan types.TaskWrapper, errorChannel chan typ
 	}
 
 	errorListener := exception.ErrorListener{
-		ErrorChannel: errorChannel,
-		CancelFunc:   cancelFunc,
+		ErrorChannel:   errorChannel,
+		CancelFunc:     cancelFunc,
+		MetricsService: metricsService,
 	}
 	go errorListener.Listen()
 
@@ -173,11 +175,12 @@ func initializeDispatcher(errorChannel chan types.ScanError, resultChannelSize i
 		DoneChannel:   doneChannel,
 		ResultService: &eventHandle.ResultServiceImpl{
 			//Register:     eventRegister,
-			Context:      ctx,
-			Publisher:    rabbitPublisher,
-			MaxRetries:   3,
-			BackoffTime:  500,
-			ErrorChannel: errorChannel,
+			Context:        ctx,
+			Publisher:      rabbitPublisher,
+			MaxRetries:     3,
+			BackoffTime:    500,
+			ErrorChannel:   errorChannel,
+			MetricsService: metricsService,
 		},
 		MetricsService: metricsService,
 	}

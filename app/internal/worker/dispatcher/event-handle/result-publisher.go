@@ -52,18 +52,20 @@ func (r *RabbitMQClient) Publish(ctx context.Context, taskId string, target stri
 	case conf, ok := <-confirmation:
 		if !ok {
 			return &types.ScanError{
-				Message: "Rabbit closed channel before confirmation",
-				Code:    500,
-				Err:     nil,
-				TaskId:  taskId,
+				Message:   "Rabbit closed channel before confirmation",
+				Code:      500,
+				Err:       nil,
+				TaskId:    taskId,
+				Component: "result-publisher",
 			}
 		}
 		if !conf.Ack {
 			return &types.ScanError{
-				Message: "Message rejected by broker",
-				Code:    500,
-				Err:     nil,
-				TaskId:  taskId,
+				Message:   "Message rejected by broker",
+				Code:      500,
+				Err:       nil,
+				TaskId:    taskId,
+				Component: "result-publisher",
 			}
 		}
 	}

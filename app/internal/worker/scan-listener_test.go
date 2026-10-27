@@ -78,11 +78,12 @@ var listenerTests = []struct {
 		orchestrateErr:   errGeneric,
 		expectedErrCount: 1,
 		expectedError: &types.ScanError{
-			Message:  "Unknown error",
-			Code:     500,
-			Err:      errGeneric,
-			TaskId:   "task-123",
-			WorkerId: 7,
+			Message:   "Unknown error",
+			Code:      500,
+			Err:       errGeneric,
+			TaskId:    "task-123",
+			WorkerId:  7,
+			Component: "scan-listener",
 		},
 		setupAckMock: func(m *MockAcknowledger) {
 			m.On("Reject", false).Return(nil).Once()

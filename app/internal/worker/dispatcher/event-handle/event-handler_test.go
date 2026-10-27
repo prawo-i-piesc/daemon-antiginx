@@ -30,7 +30,7 @@ var testEventPayload = []byte(`{
 		"Description": "Znaleziono otwarty port HTTPS"
 	},
 	"endFlag": false,
-	"resultType": 1,
+	"resultType": "Success",
 	"message": {
 		"Message": "Zakończono test pomyślnie",
 		"Code": 200
@@ -59,6 +59,13 @@ func (m *MockMetricsFacade) AddCounter(metricName string, value float64, labels 
 
 func (m *MockMetricsFacade) SetGauge(metricName string, value float64, labels ...string) {
 	m.Called(metricName, value, labels)
+}
+
+func (m *MockMetricsFacade) IncGauge(metricName string, labels ...string) {
+	m.Called(metricName, labels)
+}
+func (m *MockMetricsFacade) DecGauge(metricName string, labels ...string) {
+	m.Called(metricName, labels)
 }
 
 type HandleResultTest struct {
@@ -113,7 +120,7 @@ var handleResultsTest = []HandleResultTest{
 
 var metricTests = []HandleMetricsTest{
 	{
-		name:         "Happy path, register counter",
+		name:         "Happy path, register Counter",
 		eventPayload: []byte(`{"Name":"test_counter","Type":1,"Labels":["prod","eu"],"Value":10.5}`),
 		expectError:  false,
 		setupMock: func(m *MockMetricsFacade) {
@@ -124,7 +131,7 @@ var metricTests = []HandleMetricsTest{
 		},
 	},
 	{
-		name:         "Happy path, register histogram",
+		name:         "Happy path, register Histogram",
 		eventPayload: []byte(`{"Name":"test_hist","Type":0,"Labels":["GET"],"Value":42.0}`),
 		expectError:  false,
 		setupMock: func(m *MockMetricsFacade) {
@@ -135,7 +142,7 @@ var metricTests = []HandleMetricsTest{
 		},
 	},
 	{
-		name:         "Happy path, register gauge",
+		name:         "Happy path, register Gauge",
 		eventPayload: []byte(`{"Name":"test_gauge","Type":2,"Labels":[],"Value":5.0}`),
 		expectError:  false,
 		setupMock: func(m *MockMetricsFacade) {
@@ -227,8 +234,7 @@ func TestEventsHandler_HandleLog(t *testing.T) {
 		expectedLogMsg string
 	}{
 		{
-			name: "Happy path, successfully parses and logs event",
-			// Używamy stringa "INFO" zamiast liczby, żeby slog.Level poprawnie to zdeserializował
+			name:           "Happy path, successfully parses and logs event",
 			eventPayload:   []byte(`{"Message":"Engine scanning started","TestId":"test-456","Level":"INFO"}`),
 			taskId:         "task-123",
 			target:         "example.com",

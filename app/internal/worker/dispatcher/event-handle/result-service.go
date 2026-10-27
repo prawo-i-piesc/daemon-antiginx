@@ -15,11 +15,12 @@ type ResultService interface {
 
 type ResultServiceImpl struct {
 	//Register     EventRegister
-	BackoffTime  int
-	MaxRetries   int
-	ErrorChannel chan types.ScanError
-	Context      context.Context
-	Publisher    ResultPublisher
+	BackoffTime    int
+	MaxRetries     int
+	ErrorChannel   chan types.ScanError
+	Context        context.Context
+	Publisher      ResultPublisher
+	MetricsService MetricsFacade
 }
 
 func (r *ResultServiceImpl) publishResults(target string, taskId string, result ResultEvent) {
@@ -55,6 +56,8 @@ func (r *ResultServiceImpl) publishResults(target string, taskId string, result 
 		}
 
 		delay := baseDelay * time.Duration(1<<attempt)
+
+		r.MetricsService.AddCounter(RabbitResultRetry, 1)
 		slog.Debug("Failed to publish result to queue, retrying...",
 			slog.String("TaskId", taskId),
 			slog.String("Target", target),
