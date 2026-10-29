@@ -52,9 +52,6 @@ func (h *EventsHandlerImpl) HandleResult(event json.RawMessage, taskId string, t
 		return parsingErr
 
 	}
-	if result.EndFlag {
-		return nil
-	}
 
 	h.ResultService.publishResults(target, taskId, result)
 	return nil
@@ -69,7 +66,7 @@ func (h *EventsHandlerImpl) HandleLog(event json.RawMessage, taskId string, targ
 	}
 
 	slog.Log(context.Background(), logEvent.Level, logEvent.Message,
-		slog.String("TaskId", taskId), slog.String("Target", target), slog.String("TestId", logEvent.TestId))
+		slog.String("TaskId", taskId), slog.String("Target", target))
 	return nil
 }
 

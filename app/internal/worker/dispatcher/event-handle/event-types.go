@@ -50,11 +50,11 @@ type MetricsEvent struct {
 	Value  float64
 }
 
-type ResultType string
+type ResultType int
 
 const (
-	Message ResultType = "Message"
-	Success ResultType = "Success"
+	Message ResultType = iota
+	Success
 )
 
 type RequestInfo struct {
@@ -70,13 +70,13 @@ type TestResult struct {
 	Description string      `json:"Description"` // Human-readable findings explanation
 }
 
-type ThreatLevel int
+type ThreatLevel string
 
 const (
-	None     ThreatLevel = iota // 0 - No security issues
-	Info                        // 1 - Informational findings
-	Low                         // 2 - Low severity issues
-	Medium                      // 3 - Medium severity issues
-	High                        // 4 - High severity vulnerabilities
-	Critical                    // 5 - Critical vulnerabilities
+	None     ThreatLevel = "None"     // 0 - No security issues
+	Info     ThreatLevel = "Info"     // 1 - Informational findings
+	Low      ThreatLevel = "Low"      // 2 - Low severity issues
+	Medium   ThreatLevel = "Medium"   // 3 - Medium severity issues
+	High     ThreatLevel = "High"     // 4 - High severity vulnerabilities
+	Critical ThreatLevel = "Critical" // 5 - Critical vulnerabilities
 )
