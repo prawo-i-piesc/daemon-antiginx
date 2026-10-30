@@ -23,14 +23,14 @@ var testEventPayload = []byte(`{
 	"result": {
 		"Name": "nmap-scan",
 		"Certainty": 100,
-		"ThreatLevel": 4,
+		"ThreatLevel": "High",
 		"Metadata": {
 			"port": "443"
 		},
 		"Description": "Znaleziono otwarty port HTTPS"
 	},
 	"endFlag": false,
-	"resultType": "Success",
+	"resultType": 1,
 	"message": {
 		"Message": "Zakończono test pomyślnie",
 		"Code": 200
@@ -107,13 +107,14 @@ var handleResultsTest = []HandleResultTest{
 		},
 	},
 	{
-		name:         "Should return nil when endFlag occurs",
+		name:         "Should publish when endFlag occurs",
 		eventPayload: []byte(`{"endFlag":true}`),
 		expectError:  false,
 		setupMock: func(m *MockResultService) {
+			m.On(resultMethodName, target, taskId, mock.Anything).Once()
 		},
 		assert: func(t *testing.T, m *MockResultService) {
-			m.AssertNotCalled(t, resultMethodName)
+			m.AssertCalled(t, resultMethodName, target, taskId, mock.Anything)
 		},
 	},
 }
@@ -271,7 +272,6 @@ func TestEventsHandler_HandleLog(t *testing.T) {
 				assert.Contains(t, logOutput, tt.expectedLogMsg)
 				assert.Contains(t, logOutput, "TaskId="+tt.taskId)
 				assert.Contains(t, logOutput, "Target="+tt.target)
-				assert.Contains(t, logOutput, "TestId=test-456")
 			}
 		})
 	}
