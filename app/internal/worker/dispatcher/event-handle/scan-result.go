@@ -1,9 +1,10 @@
 package event_handle
 
 type ScanContext struct {
-	Target string     `json:"target"`
-	TestId string     `json:"testId"`
-	Result ScanResult `json:"result"`
+	Target  string     `json:"target"`
+	TestId  string     `json:"testId"`
+	EndFlag bool       `json:"endFlag"`
+	Result  ScanResult `json:"result"`
 }
 
 type ScanResult struct {
