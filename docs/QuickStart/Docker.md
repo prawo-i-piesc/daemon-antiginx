@@ -44,7 +44,7 @@ Alternatively, pull `ghcr.io/prawo-i-piesc/daemon-antiginx:latest` and replace `
 ```sh
 docker run --rm --name antiginx-daemon --network antiginx-net \
   -p 127.0.0.1:9091:9091 \
-  -e PROMETHEUS_PORT=:9091 \
+  -e PROMETHEUS_PORT=9091 \
   -e RABBITMQ_URL=amqp://antiginx:localdev@antiginx-rabbit:5672/ \
   -e RABBITMQ_QUEUE_NAME=tasks_queue \
   -e RABBITMQ_RESULTS_QUEUE=results_queue \

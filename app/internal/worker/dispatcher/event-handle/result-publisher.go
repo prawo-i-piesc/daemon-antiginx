@@ -24,7 +24,9 @@ func (r *RabbitMQClient) Publish(ctx context.Context, taskId string, target stri
 	if err != nil {
 		return err
 	}
-	defer channel.Close()
+	defer func() {
+		_ = channel.Close()
+	}()
 
 	pubCtx, cancel := context.WithTimeout(ctx, time.Duration(r.BackoffTime)*time.Millisecond)
 	defer cancel()

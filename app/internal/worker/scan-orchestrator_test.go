@@ -59,11 +59,8 @@ var tests = []struct {
 		expectError: false,
 	},
 	{
-		name:       "Should return error when cmd Start error occurs",
-		engineCall: "this-command-does-not-exist-12345",
-		setupMock: func(m *MockEventDispatcher) {
-			m.On("Dispatch", mock.Anything, "task-1", 1, "target.com").Once()
-		},
+		name:        "Should return error when cmd Start error occurs",
+		engineCall:  "this-command-does-not-exist-12345",
 		expectError: true,
 	},
 	{

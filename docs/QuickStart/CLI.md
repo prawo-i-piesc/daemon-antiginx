@@ -18,7 +18,7 @@ The resulting binary is `../engine-antiginx/cli-app` (on Windows, build an `.exe
 The daemon loads `.env` from its current directory if present; otherwise it reads the process environment. Set at least:
 
 ```dotenv
-PROMETHEUS_PORT=:9091
+PROMETHEUS_PORT=9091
 RABBITMQ_URL=amqp://antiginx:localdev@localhost:5672/
 RABBITMQ_QUEUE_NAME=tasks_queue
 RABBITMQ_RESULTS_QUEUE=results_queue
@@ -32,7 +32,7 @@ For example, save these lines to `.env` in the daemon repository root (or copy `
 go run .
 ```
 
-Check `http://localhost:9091/metrics` from the host. `PROMETHEUS_PORT` is a Go listen address; the leading colon is intentional. To stop, press Ctrl-C. The daemon also handles SIGTERM.
+Check `http://localhost:9091/metrics` from the host. `PROMETHEUS_PORT` is a port number; the daemon listens on it on all interfaces. To stop, press Ctrl-C. The daemon also handles SIGTERM.
 
 Optional tuning: `WORKER_POOL` (default 10), `TASK_CHANNEL_SIZE` (default 10), and `PREFETCH_COUNT` (default 12) must be numeric. See [configuration](../Daemon/README.md#configuration).
 

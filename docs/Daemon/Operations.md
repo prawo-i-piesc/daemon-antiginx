@@ -2,7 +2,7 @@
 
 ## Metrics
 
-Set `PROMETHEUS_PORT=:9091` to bind the Go HTTP listener and scrape `http://localhost:9091/metrics` when running on the host. In Docker, publish that port explicitly, for example `-p 9091:9091` with the same `PROMETHEUS_PORT`. Restrict access to the metrics port in deployments where the network is untrusted. The Dockerfile's `EXPOSE 5000` does not select the metrics port.
+Set `PROMETHEUS_PORT=9091` to bind the Go HTTP listener on `:9091` and scrape `http://localhost:9091/metrics` when running on the host. In Docker, publish that port explicitly, for example `-p 9091:9091` with the same `PROMETHEUS_PORT`. Restrict access to the metrics port in deployments where the network is untrusted. The Dockerfile's `EXPOSE 5000` does not select the metrics port.
 
 The service registers Go/process collectors and these application metric names (including the spelling of `enigne` in the current code):
 
@@ -22,7 +22,7 @@ Application metric vectors are updated by **metrics events emitted by the engine
 
 | Symptom | What to check |
 | --- | --- |
-| `PROMETHEUS_PORT env is not set` | Set a listen address such as `:9091` before starting. |
+| `PROMETHEUS_PORT env is not set` | Set a port such as `9091` before starting. |
 | RabbitMQ dial fails | Check `RABBITMQ_URL`, credentials, vhost, port and container network; `localhost` inside the daemon container refers to that container. |
 | Consumer cannot start | Check that `RABBITMQ_QUEUE_NAME` exists and the RabbitMQ user can consume from it. The daemon does not declare queues. |
 | No results | Check `RABBITMQ_RESULTS_QUEUE` exists, engine executable permissions and its compatibility with `rawjson`, and broker publication errors in JSON logs. |
