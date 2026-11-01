@@ -43,6 +43,13 @@ var testEvent = ResultEvent{
 	},
 }
 
+var endEvent = ResultEvent{
+	Target:     target,
+	TestId:     taskId,
+	EndFlag:    true,
+	ResultType: Message,
+}
+
 var badEvent = ResultEvent{
 	Result: TestResult{
 		Metadata: make(chan int),
@@ -99,6 +106,16 @@ var tests = []struct {
 		},
 		assert:      assertResultEvent,
 		resultEvent: testEvent,
+	},
+	{
+		name:       "Should pass endFlag to payload",
+		maxRetries: 2,
+		setupMock: func(m *MockResultPublisher) {
+			m.On(methodName, mock.Anything, taskId, target, mock.Anything).
+				Return(nil).Once()
+		},
+		assert:      assertEndEvent,
+		resultEvent: endEvent,
 	},
 	{
 		name:       "Should skip event when marshall function return error",
@@ -161,6 +178,18 @@ func assertResultEvent(t *testing.T, m *MockResultPublisher) {
 		assertPayloadContents(t, payload, target, taskId)
 	}
 }
+func assertEndEvent(t *testing.T, m *MockResultPublisher) {
+	if assert.NotEmpty(t, m.Calls) {
+		var got ScanContext
+		err := json.Unmarshal(m.Calls[0].Arguments.Get(3).([]byte), &got)
+		require.NoError(t, err)
+
+		assert.True(t, got.EndFlag)
+		assert.Equal(t, taskId, got.TestId)
+		assert.Equal(t, Message, got.Result.ResultType)
+	}
+}
+
 func assertPayloadContents(t *testing.T, payload []byte, expectedTarget, expectedTaskId string) {
 	t.Helper()
 
@@ -170,6 +199,7 @@ func assertPayloadContents(t *testing.T, payload []byte, expectedTarget, expecte
 
 	assert.Equal(t, expectedTarget, got.Target)
 	assert.Equal(t, expectedTaskId, got.TestId)
+	assert.False(t, got.EndFlag)
 
 	assert.Equal(t, Success, got.Result.ResultType)
 	assert.Equal(t, "nmap-scan", got.Result.TestResult.Name)

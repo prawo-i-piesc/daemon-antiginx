@@ -26,8 +26,9 @@ type ResultServiceImpl struct {
 func (r *ResultServiceImpl) publishResults(target string, taskId string, result ResultEvent) {
 
 	scanData := ScanContext{
-		Target: target,
-		TestId: taskId,
+		Target:  target,
+		TestId:  taskId,
+		EndFlag: result.EndFlag,
 		Result: ScanResult{
 			TestResult: result.Result,
 			ScanInfo:   result.ProcessInfo,
