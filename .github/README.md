@@ -70,7 +70,7 @@ The documentation site is built with `mkdocs build --strict` by the GitHub Actio
 
 ## 🤝 Contributing
 
-Fork the repository, create a feature branch, run `go test ./...` and open a pull request. End-to-end tests (`go test -tags=e2e ./app/e2e`) additionally require a running Docker daemon.
+Fork the repository, create a feature branch, run `go test ./...` and open a pull request. End-to-end tests (`go test -tags=e2e ./app/e2e`) additionally require a running Docker daemon. GitHub Actions runs both, plus `golangci-lint`.
 
 ## 📄 Links
 

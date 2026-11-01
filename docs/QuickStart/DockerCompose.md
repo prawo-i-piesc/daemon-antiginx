@@ -19,7 +19,7 @@ cp .env.example .env
 Fill in at least these values in `.env` (the credentials and host below are **examples for Docker Desktop** using the broker from the manual Docker guide):
 
 ```dotenv
-PROMETHEUS_PORT=:9091
+PROMETHEUS_PORT=9091
 RABBITMQ_URL=amqp://antiginx:localdev@host.docker.internal:5672/
 RABBITMQ_QUEUE_NAME=tasks_queue
 RABBITMQ_RESULTS_QUEUE=results_queue
@@ -32,7 +32,7 @@ docker compose up --build -d
 docker compose logs -f daemon-antiginx
 ```
 
-The build needs access to the engine image on GHCR and the Go/Alpine base images. In the logs, look for `Listening on RabbitMQ started`. Stop following logs with Ctrl-C; the daemon stays running. With `PROMETHEUS_PORT=:9091`, metrics are exposed on the host only at `http://localhost:9091/metrics`:
+The build needs access to the engine image on GHCR and the Go/Alpine base images. In the logs, look for `Listening on RabbitMQ started`. Stop following logs with Ctrl-C; the daemon stays running. With `PROMETHEUS_PORT=9091`, metrics are exposed on the host only at `http://localhost:9091/metrics`:
 
 ```sh
 curl --fail http://localhost:9091/metrics

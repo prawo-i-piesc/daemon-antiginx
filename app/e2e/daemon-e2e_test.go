@@ -313,7 +313,7 @@ func setupEnvironment(t *testing.T, enginePath, amqpURL string, engineBehaviour 
 	t.Setenv("RABBITMQ_QUEUE_NAME", tasksQueue)
 	t.Setenv("RABBITMQ_RESULTS_QUEUE", resultsQueue)
 	t.Setenv("PREFETCH_COUNT", "2")
-	t.Setenv("PROMETHEUS_PORT", ":9091")
+	t.Setenv("PROMETHEUS_PORT", "9091")
 
 	t.Setenv(mockBehaviour, engineBehaviour)
 }

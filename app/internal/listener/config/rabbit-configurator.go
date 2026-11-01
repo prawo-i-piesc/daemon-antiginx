@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"log/slog"
+	"net/url"
 	"os"
 	"strconv"
 
@@ -65,7 +66,7 @@ func ConfigureRabbit() (*RabbitConfig, error) {
 
 	conn, dialErr := amqp.Dial(rabbitmqURL)
 	if dialErr != nil {
-		msg := fmt.Sprintf("Cannot create TCP dial connection with %s, %v", rabbitmqURL, dialErr)
+		msg := fmt.Sprintf("Cannot create TCP dial connection with %s, %v", redactedURL(rabbitmqURL), dialErr)
 		return nil, &types.ScanError{
 			Message:   msg,
 			Code:      500,
@@ -79,7 +80,7 @@ func ConfigureRabbit() (*RabbitConfig, error) {
 	taskChannel, connErr := conn.Channel()
 	if connErr != nil {
 		_ = conn.Close()
-		msg := fmt.Sprintf("Error during opening the Channel with %s, %v", rabbitmqURL, connErr)
+		msg := fmt.Sprintf("Error during opening the Channel with %s, %v", redactedURL(rabbitmqURL), connErr)
 		return nil, &types.ScanError{
 			Message:   msg,
 			Code:      500,
@@ -87,7 +88,7 @@ func ConfigureRabbit() (*RabbitConfig, error) {
 			Component: "rabbit-configurator",
 		}
 	}
-	slog.Info("Channel created", slog.String("url", rabbitmqURL))
+	slog.Info("Channel created", slog.String("url", redactedURL(rabbitmqURL)))
 
 	qosErr := taskChannel.Qos(
 		prefetchCount,
@@ -114,4 +115,13 @@ func ConfigureRabbit() (*RabbitConfig, error) {
 		ErrMidConnCh:    errMidConnChann,
 		QueueName:       queueName,
 	}, nil
+}
+
+// redactedURL hides the password so the broker URL can be logged.
+func redactedURL(raw string) string {
+	u, err := url.Parse(raw)
+	if err != nil {
+		return "<invalid RABBITMQ_URL>"
+	}
+	return u.Redacted()
 }

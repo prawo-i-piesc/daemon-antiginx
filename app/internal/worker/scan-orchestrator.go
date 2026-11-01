@@ -25,9 +25,6 @@ type ScanOrchestrator struct {
 
 func (o *ScanOrchestrator) Orchestrate(taskWrapper types.TaskWrapper, workerId int) error {
 
-	eventChan := make(chan event_handle.EngineEventWrapper, 50)
-	go o.EventDispatcher.Dispatch(eventChan, taskWrapper.ScanTask.TaskId, workerId, taskWrapper.ScanTask.Target)
-
 	o.MetricsService.IncGauge(event_handle.ActiveWorkers)
 	defer o.MetricsService.DecGauge(event_handle.ActiveWorkers)
 
@@ -60,6 +57,10 @@ func (o *ScanOrchestrator) Orchestrate(taskWrapper types.TaskWrapper, workerId i
 			Component: "scan-orchestrator",
 		}
 	}
+
+	// Started only once the engine runs, so a failed start leaves no dispatcher waiting on a channel that is never closed.
+	eventChan := make(chan event_handle.EngineEventWrapper, 50)
+	go o.EventDispatcher.Dispatch(eventChan, taskWrapper.ScanTask.TaskId, workerId, taskWrapper.ScanTask.Target)
 
 	scanner := bufio.NewScanner(stdout)
 	for scanner.Scan() {
