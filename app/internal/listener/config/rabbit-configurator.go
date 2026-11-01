@@ -30,7 +30,6 @@ func ConfigureRabbit() (*RabbitConfig, error) {
 	}
 	slog.Info("Successfully fetched env",
 		slog.String("env_name", rabbitMQEnvName),
-		slog.String("value", rabbitmqURL),
 	)
 
 	prefetchCountStr := os.Getenv(prefetchCountEnvName)
