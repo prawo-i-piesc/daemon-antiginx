@@ -28,7 +28,7 @@ func (o *ScanOrchestrator) Orchestrate(taskWrapper types.TaskWrapper, workerId i
 	o.MetricsService.IncGauge(event_handle.ActiveWorkers)
 	defer o.MetricsService.DecGauge(event_handle.ActiveWorkers)
 
-	slog.Info("Processing scan...",
+	slog.Info("Processing scan....",
 		slog.Int("WorkerId", workerId),
 		slog.String("TaskId", taskWrapper.ScanTask.TaskId))
 
@@ -59,6 +59,7 @@ func (o *ScanOrchestrator) Orchestrate(taskWrapper types.TaskWrapper, workerId i
 	}
 
 	// Started only once the engine runs, so a failed start leaves no dispatcher waiting on a channel that is never closed.
+
 	eventChan := make(chan event_handle.EngineEventWrapper, 50)
 	go o.EventDispatcher.Dispatch(eventChan, taskWrapper.ScanTask.TaskId, workerId, taskWrapper.ScanTask.Target)
 
