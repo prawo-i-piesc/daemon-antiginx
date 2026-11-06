@@ -1,0 +1,17 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "enabledManagers": ["dockerfile"],
+  "commitMessagePrefix": "deps(bump):",
+  "packageRules": [
+    {
+      "description": "Dependabot updates base images; Renovate only bumps the engine",
+      "matchPackageNames": ["*"],
+      "enabled": false
+    },
+    {
+      "matchPackageNames": ["ghcr.io/prawo-i-piesc/engine-antiginx"],
+      "enabled": true
+    }
+  ]
+}
