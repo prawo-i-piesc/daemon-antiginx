@@ -1,5 +1,5 @@
 # Variables
-ARG ENGINE_IMAGE=ghcr.io/prawo-i-piesc/engine-antiginx:0.6.36
+ARG ENGINE_IMAGE=ghcr.io/prawo-i-piesc/engine-antiginx:0.6.37
 ARG ENGINE_BINARY_APP_NAME=cli-app
 ARG ENGINE_BINARY_DAEMON_NAME=daemon
 ARG TARGETARCH
