@@ -7,8 +7,10 @@ import (
 	"context"
 	_ "embed"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log/slog"
+	"net"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -254,8 +256,12 @@ func (s *E2ETestSuite) TestE2E_InvalidEngineEventPayload() {
 
 	select {
 	case msg := <-msgs:
-		s.T().Fatalf("Expected no messages on results_queue, but received: %s", string(msg.Body))
-	case <-time.After(2 * time.Second):
+		var result eventHandle.ScanContext
+		err := json.Unmarshal(msg.Body, &result)
+		require.NoError(s.T(), err)
+		require.True(s.T(), result.EndFlag, "Expected endFlag to be true in results queue")
+	case <-time.After(3 * time.Second):
+		s.T().Fatal("Timeout waiting for result event")
 	}
 
 	s.Require().Contains(logBuffer.String(), "Faulty engine event, cannot parse (skipped)")
@@ -303,8 +309,21 @@ func setupRabbit(t *testing.T) (*rabbitmq.RabbitMQContainer, string, context.Con
 
 	return rabbitContainer, amqpURL, ctxTC
 }
+
+func getFreePort(t *testing.T) string {
+	t.Helper()
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	require.NoError(t, err)
+	defer listener.Close()
+
+	addr := listener.Addr().(*net.TCPAddr)
+	return fmt.Sprintf("%d", addr.Port)
+}
+
 func setupEnvironment(t *testing.T, enginePath, amqpURL string, engineBehaviour string) {
 	t.Helper()
+
+	freePort := getFreePort(t)
 
 	t.Setenv("TASK_CHANNEL_SIZE", "5")
 	t.Setenv("ENGINE_ANTIGINX_CALL", enginePath)
@@ -313,7 +332,7 @@ func setupEnvironment(t *testing.T, enginePath, amqpURL string, engineBehaviour 
 	t.Setenv("RABBITMQ_QUEUE_NAME", tasksQueue)
 	t.Setenv("RABBITMQ_RESULTS_QUEUE", resultsQueue)
 	t.Setenv("PREFETCH_COUNT", "2")
-	t.Setenv("PROMETHEUS_PORT", "9091")
+	t.Setenv("PROMETHEUS_PORT", freePort)
 
 	t.Setenv(mockBehaviour, engineBehaviour)
 }

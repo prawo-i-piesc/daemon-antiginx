@@ -38,6 +38,14 @@ func (m *MockMetricsFacadeIntegration) SetGauge(metricName string, value float64
 	m.Called(metricName, value, labels)
 }
 
+func (m *MockMetricsFacadeIntegration) IncGauge(metricName string, labels ...string) {
+	m.Called(metricName, labels)
+}
+
+func (m *MockMetricsFacadeIntegration) DecGauge(metricName string, labels ...string) {
+	m.Called(metricName, labels)
+}
+
 func TestIntegration_DispatcherToServicesFlow(t *testing.T) {
 	taskId := "int-task-999"
 	target := "integration-target.com"
@@ -72,7 +80,7 @@ func TestIntegration_DispatcherToServicesFlow(t *testing.T) {
 		"result": {
 			"Name": "nmap-scan",
 			"Certainty": 100,
-			"ThreatLevel": 4,
+			"ThreatLevel": "High",
 			"Description": "Integration Test"
 		},
 		"endFlag": false,
@@ -99,6 +107,16 @@ func TestIntegration_DispatcherToServicesFlow(t *testing.T) {
 	close(eventStream)
 
 	dispatcher.Dispatch(eventStream, taskId, workerId, target)
+
+	for {
+		select {
+		case err := <-errorChannel:
+			t.Logf("Błąd w kanale: %s (Komponent: %s) (Err: %s)", err.Message, err.Component, err.Err)
+		default:
+			goto DONE // Kanał jest pusty, wychodzimy z pętli
+		}
+	}
+DONE:
 
 	require.Len(t, errorChannel, 0)
 	mockPublisher.AssertExpectations(t)

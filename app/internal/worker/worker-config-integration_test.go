@@ -15,6 +15,28 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+type NoOpMetricsService struct{}
+
+func (m *NoOpMetricsService) AddCounter(metricName string, value float64, labels ...string)       {}
+func (m *NoOpMetricsService) ObserveHistogram(metricName string, value float64, labels ...string) {}
+func (m *NoOpMetricsService) SetGauge(metricName string, value float64, labels ...string)         {}
+func (m *NoOpMetricsService) IncGauge(metricName string, labels ...string)                        {}
+func (m *NoOpMetricsService) DecGauge(metricName string, labels ...string)                        {}
+
+type MockAck struct {
+	mock.Mock
+}
+
+func (m *MockAck) Ack() error {
+	args := m.Called()
+	return args.Error(0)
+}
+
+func (m *MockAck) Reject(requeue bool) error {
+	args := m.Called(requeue)
+	return args.Error(0)
+}
+
 type MockIntegrationDispatcher struct {
 	mock.Mock
 }
@@ -34,10 +56,13 @@ func TestIntegration_WorkerListenerOrchestratorFlow(t *testing.T) {
 	mockDispatcher.On("Dispatch", mock.Anything, "int-task-ok", workerId, "target1.com").Return().Once()
 	mockDispatcher.On("Dispatch", mock.Anything, "int-task-err", workerId, "target2.com").Return().Once()
 
+	mockMetrics := &NoOpMetricsService{}
+
 	orchestrator := &ScanOrchestrator{
 		EngineCall:      os.Args[0],
 		EngineArg:       "-test.run=TestIntegrationHelperProcess",
 		EventDispatcher: mockDispatcher,
+		MetricsService:  mockMetrics,
 	}
 
 	taskChan := make(chan types.TaskWrapper, 2)
@@ -49,14 +74,22 @@ func TestIntegration_WorkerListenerOrchestratorFlow(t *testing.T) {
 		Orchestrator: orchestrator,
 	}
 
+	mockAck1 := new(MockAck)
+	mockAck1.On("Ack").Return(nil).Once()
+
+	mockAck2 := new(MockAck)
+	mockAck2.On("Reject", true).Return(nil).Once()
+
 	task1 := types.TaskWrapper{
 		ScanTask:  types.ScanTask{TaskId: "int-task-ok", Target: "target1.com"},
 		QueueTask: amqp091.Delivery{Body: []byte("INTEGRATION_SUCCESS")},
+		Ack:       mockAck1,
 	}
 
 	task2 := types.TaskWrapper{
 		ScanTask:  types.ScanTask{TaskId: "int-task-err", Target: "target2.com"},
 		QueueTask: amqp091.Delivery{Body: []byte("INTEGRATION_ERROR")},
+		Ack:       mockAck2,
 	}
 
 	taskChan <- task1
