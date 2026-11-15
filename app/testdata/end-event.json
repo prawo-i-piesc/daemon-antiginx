@@ -1,1 +1,1 @@
-{"EventType": 0, "Event": {"target": "test target", "testId": "test-happy-123", "result": {"Name": "", "Certainty": 0, "ThreatLevel": 0, "Metadata": "", "Description": ""}, "endFlag": true, "resultType": 1, "message": {"Message": "done", "Code": 0}}}
+{"EventType": 0, "Event": {"target": "test target", "testId": "test-happy-123", "result": {"Name": "", "Certainty": 0, "ThreatLevel": "None", "Metadata": "", "Description": ""}, "endFlag": true, "resultType": 1, "message": {"Message": "done", "Code": 0}}}
